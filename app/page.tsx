@@ -27,9 +27,9 @@ export default async function Home() {
   return (
     <div className="min-h-screen bg-black">
       {/* HERO */}
-      <section className="relative overflow-hidden halftone min-h-[85vh] flex items-center">
+      <section className="relative overflow-hidden halftone flex items-center">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10" />
-        <div className="relative z-20 max-w-6xl mx-auto px-4 py-24 text-center w-full">
+        <div className="relative z-20 max-w-6xl mx-auto px-4 py-10 text-center w-full">
           <div className="inline-block mb-4 px-3 py-1 bg-red-600 text-white text-xs font-black uppercase tracking-widest">
             {c.hero_badge}
           </div>
