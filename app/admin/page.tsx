@@ -589,7 +589,7 @@ export default function AdminPage() {
               )}
 
               {uploading && (
-                <div className="text-center py-3 text-orange-500 font-black uppercase text-sm">
+                <div className="text-center py-3 text-cyan-500 font-black uppercase text-sm">
                   Bild wird hochgeladen...
                 </div>
               )}
@@ -617,7 +617,7 @@ export default function AdminPage() {
                           className="object-cover"
                         />
                         {img.featured && (
-                          <div className="absolute top-1 left-1 bg-orange-500 text-black text-xs font-black px-1">
+                          <div className="absolute top-1 left-1 bg-cyan-500 text-black text-xs font-black px-1">
                             ★
                           </div>
                         )}
@@ -634,8 +634,8 @@ export default function AdminPage() {
                             onClick={() => toggleFeatured(img)}
                             className={`flex-1 py-1 text-xs font-black uppercase ${
                               img.featured
-                                ? "bg-orange-500 text-black"
-                                : "border border-gray-700 text-gray-500 hover:border-orange-500 hover:text-orange-500"
+                                ? "bg-cyan-500 text-black"
+                                : "border border-gray-700 text-gray-500 hover:border-cyan-500 hover:text-cyan-500"
                             }`}
                           >
                             {img.featured ? "★ Top" : "☆ Top"}
@@ -670,11 +670,11 @@ export default function AdminPage() {
                       </div>
                       <div className="p-3">
                         <p className="text-xs font-black uppercase truncate">{prod.name}</p>
-                        <p className="text-orange-500 text-xs font-bold">{prod.price.toFixed(2)} €</p>
+                        <p className="text-cyan-500 text-xs font-bold">{prod.price.toFixed(2)} €</p>
                         <p className="text-gray-500 text-xs mb-2">Lager: {prod.stock} | {prod.active ? "Aktiv" : "Inaktiv"}</p>
                         <div className="flex gap-1">
                           <button onClick={() => setEditProduct({ ...prod, images: prod.images || [], featured: prod.featured || false })}
-                            className="flex-1 py-1 text-xs font-black uppercase bg-orange-500 text-black hover:bg-orange-400 transition-colors">
+                            className="flex-1 py-1 text-xs font-black uppercase bg-cyan-500 text-black hover:bg-cyan-400 transition-colors">
                             Bearbeiten
                           </button>
                           <button onClick={() => deleteProduct(prod.id)}
@@ -730,7 +730,7 @@ export default function AdminPage() {
                           <div className="flex gap-2 shrink-0">
                             <button
                               onClick={() => startEditPost(post)}
-                              className="px-4 py-2 bg-orange-500 text-black font-black uppercase text-xs hover:bg-orange-400 transition-colors"
+                              className="px-4 py-2 bg-cyan-500 text-black font-black uppercase text-xs hover:bg-cyan-400 transition-colors"
                             >
                               Bearbeiten
                             </button>
@@ -966,26 +966,26 @@ export default function AdminPage() {
                             <label className="block text-gray-500 text-xs uppercase mb-1">Name</label>
                             <input type="text" value={editUser.name}
                               onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
-                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500" />
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
                           </div>
                           <div>
                             <label className="block text-gray-500 text-xs uppercase mb-1">E-Mail</label>
                             <input type="email" value={editUser.email}
                               onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
-                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500" />
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
                           </div>
                           <div>
                             <label className="block text-gray-500 text-xs uppercase mb-1">Neues Passwort (leer = unverändert)</label>
                             <input type="password" placeholder="Neues Passwort..."
                               onChange={(e) => setEditUser({ ...editUser, role: editUser.role })}
                               onBlur={(e) => { if (e.target.value) setEditUser({ ...editUser, ...{ password: e.target.value } as Partial<AdminUser> }); }}
-                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500" />
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
                           </div>
                           <div>
                             <label className="block text-gray-500 text-xs uppercase mb-1">Rolle</label>
                             <select value={editUser.role}
                               onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
-                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500">
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500">
                               {ROLE_OPTIONS.map((r) => (
                                 <option key={r.value} value={r.value}>{r.label}</option>
                               ))}
@@ -994,7 +994,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex gap-2">
                           <button onClick={saveUser} disabled={userSaving}
-                            className="flex-1 py-2 bg-orange-500 text-black font-black uppercase text-sm hover:bg-orange-400 transition-colors disabled:opacity-50">
+                            className="flex-1 py-2 bg-cyan-500 text-black font-black uppercase text-sm hover:bg-cyan-400 transition-colors disabled:opacity-50">
                             {userSaving ? "Speichern..." : "Speichern"}
                           </button>
                           <button onClick={() => setEditUser(null)}
@@ -1020,7 +1020,7 @@ export default function AdminPage() {
                         </div>
                         <div className="flex gap-2 shrink-0">
                           <button onClick={() => setEditUser({ ...u })}
-                            className="px-4 py-2 bg-orange-500 text-black font-black uppercase text-xs hover:bg-orange-400 transition-colors">
+                            className="px-4 py-2 bg-cyan-500 text-black font-black uppercase text-xs hover:bg-cyan-400 transition-colors">
                             Bearbeiten
                           </button>
                           <button onClick={() => deleteUser(u.id)}
@@ -1091,8 +1091,8 @@ export default function AdminPage() {
                   <div className="space-y-4">
 
                     {/* PAGE: Startseite */}
-                    <div className="border-l-4 border-orange-500 pl-4 mb-2 mt-2">
-                      <p className="font-black uppercase text-xs text-orange-500 tracking-widest">Startseite</p>
+                    <div className="border-l-4 border-cyan-500 pl-4 mb-2 mt-2">
+                      <p className="font-black uppercase text-xs text-cyan-500 tracking-widest">Startseite</p>
                     </div>
 
                     {section("🦸", "Hero — Großer Titelbereich", "Ganz oben auf der Startseite, das erste was Besucher sehen", "bg-red-900/40 text-white border-b border-red-800",
@@ -1144,7 +1144,7 @@ export default function AdminPage() {
                         <div className="mb-4 p-3 bg-black border border-gray-800 text-xs text-gray-600 font-mono select-none">
                           <div className="flex gap-3">
                             <div className="flex-1 text-white/30">
-                              <div className="bg-orange-500/20 inline px-1">[Badge]</div>
+                              <div className="bg-cyan-500/20 inline px-1">[Badge]</div>
                               <div className="font-bold text-white/40">[Titel]</div>
                               <div>[Text 1]</div>
                               <div>[Text 2]</div>
@@ -1164,10 +1164,10 @@ export default function AdminPage() {
                         <div className="mb-4 p-3 bg-black border border-gray-800 text-xs text-gray-600 font-mono select-none">
                           <div className="flex gap-3">
                             <div className="flex-1">
-                              <div className="bg-orange-500/20 text-orange-500/60 text-xs inline px-1">[Badge]</div>
+                              <div className="bg-cyan-500/20 text-cyan-500/60 text-xs inline px-1">[Badge]</div>
                               <div className="font-bold text-red-400/40">[Titel]</div>
                               <div className="text-white/30">[Text]</div>
-                              <div className="mt-1 bg-orange-500/20 inline-block px-2 text-orange-500/50">→ Zum Shop</div>
+                              <div className="mt-1 bg-cyan-500/20 inline-block px-2 text-cyan-500/50">→ Zum Shop</div>
                             </div>
                             <div className="flex-1 border border-gray-700 flex items-center justify-center text-2xl text-gray-700">🏷️</div>
                           </div>
@@ -1274,7 +1274,7 @@ export default function AdminPage() {
       {/* Produkt Edit Modal */}
       {editProduct && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setEditProduct(null)}>
-          <div className="w-full max-w-lg bg-gray-950 border-2 border-orange-500 p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}
+          <div className="w-full max-w-lg bg-gray-950 border-2 border-cyan-500 p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}
             style={{ boxShadow: "6px 6px 0px #ff0033" }}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-black uppercase text-lg">Produkt bearbeiten</h2>
@@ -1290,13 +1290,13 @@ export default function AdminPage() {
                   <label className="block text-gray-500 text-xs uppercase mb-1">Produktname</label>
                   <input type="text" value={editProduct.name}
                     onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
-                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500" />
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
                 </div>
                 <div>
                   <label className="block text-gray-500 text-xs uppercase mb-1">Künstler</label>
                   <input type="text" value={editProduct.artist}
                     onChange={(e) => setEditProduct({ ...editProduct, artist: e.target.value })}
-                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500" />
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
                 </div>
               </div>
             </div>
@@ -1314,13 +1314,13 @@ export default function AdminPage() {
                 <label className="block text-gray-500 text-xs uppercase mb-1">Preis (€)</label>
                 <input type="number" step="0.01" value={editProduct.price}
                   onChange={(e) => setEditProduct({ ...editProduct, price: parseFloat(e.target.value) || 0 })}
-                  className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500" />
+                  className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
               </div>
               <div>
                 <label className="block text-gray-500 text-xs uppercase mb-1">Lagerbestand</label>
                 <input type="number" value={editProduct.stock}
                   onChange={(e) => setEditProduct({ ...editProduct, stock: parseInt(e.target.value) || 0 })}
-                  className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-orange-500" />
+                  className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" />
               </div>
             </div>
 
@@ -1329,9 +1329,9 @@ export default function AdminPage() {
               <label className="block text-gray-500 text-xs uppercase mb-2">Weitere Fotos</label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {/* Cover-Bild */}
-                <div className="relative w-20 h-20 border-2 border-orange-500 bg-gray-800 shrink-0">
+                <div className="relative w-20 h-20 border-2 border-cyan-500 bg-gray-800 shrink-0">
                   <Image src={editProduct.filename} alt="Cover" fill className="object-cover" />
-                  <div className="absolute bottom-0 left-0 right-0 bg-orange-500 text-black text-[9px] font-black text-center">COVER</div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-cyan-500 text-black text-[9px] font-black text-center">COVER</div>
                 </div>
                 {/* Extra Bilder */}
                 {editProduct.images.map((img) => (
@@ -1382,7 +1382,7 @@ export default function AdminPage() {
             <div className="mb-6">
               <label className="flex items-center gap-3 cursor-pointer"
                 onClick={() => setEditProduct({ ...editProduct, featured: !editProduct.featured })}>
-                <div className={`w-12 h-6 rounded-full transition-colors relative ${editProduct.featured ? "bg-orange-500" : "bg-gray-700"}`}>
+                <div className={`w-12 h-6 rounded-full transition-colors relative ${editProduct.featured ? "bg-cyan-500" : "bg-gray-700"}`}>
                   <div className={`absolute top-0 w-6 h-6 bg-white rounded-full transition-transform shadow ${editProduct.featured ? "translate-x-6" : "translate-x-0"}`} />
                 </div>
                 <span className="font-black uppercase text-sm">
@@ -1394,7 +1394,7 @@ export default function AdminPage() {
 
             <div className="flex gap-3">
               <button onClick={saveProduct}
-                className="flex-1 py-3 bg-orange-500 text-black font-black uppercase tracking-widest hover:bg-orange-400 transition-colors">
+                className="flex-1 py-3 bg-cyan-500 text-black font-black uppercase tracking-widest hover:bg-cyan-400 transition-colors">
                 Speichern
               </button>
               <button onClick={() => setEditProduct(null)}
