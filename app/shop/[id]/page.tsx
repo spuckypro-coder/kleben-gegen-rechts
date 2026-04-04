@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { useCart } from "@/components/CartProvider";
 
 interface ProductImage {
   id: string;
@@ -30,6 +31,7 @@ export default function ProductDetailPage() {
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -44,16 +46,9 @@ export default function ProductDetailPage() {
       .catch(() => router.push("/shop"));
   }, [id, router]);
 
-  const addToCart = () => {
+  const handleAddToCart = () => {
     if (!product) return;
-    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
-    const idx = existing.findIndex((i: { id: string }) => i.id === product.id);
-    if (idx >= 0) {
-      existing[idx].quantity += quantity;
-    } else {
-      existing.push({ ...product, quantity });
-    }
-    localStorage.setItem("cart", JSON.stringify(existing));
+    addToCart(product, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -207,7 +202,7 @@ export default function ProductDetailPage() {
 
                 <div className="flex gap-3">
                   <button
-                    onClick={addToCart}
+                    onClick={handleAddToCart}
                     className={`flex-1 py-4 font-black uppercase tracking-widest transition-colors text-lg ${
                       added
                         ? "bg-green-600 text-white"

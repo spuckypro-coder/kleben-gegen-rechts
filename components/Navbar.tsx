@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
+import { useCart } from "./CartProvider";
 
 export default function Navbar() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
+  const { cartCount, setCartOpen } = useCart();
 
   return (
     <nav className="bg-black border-b-2 border-red-600 sticky top-0 z-50">
@@ -57,6 +59,22 @@ export default function Navbar() {
             </>
           ) : null}
         </div>
+
+        {/* Cart Button — always visible */}
+        <button
+          onClick={() => setCartOpen(true)}
+          className="relative p-2 hover:text-yellow-400 transition-colors"
+          aria-label="Warenkorb"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-black w-5 h-5 flex items-center justify-center rounded-full">
+              {cartCount}
+            </span>
+          )}
+        </button>
 
         {/* Mobile Menu Button */}
         <button
