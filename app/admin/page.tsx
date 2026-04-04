@@ -23,7 +23,7 @@ interface Product {
   active: boolean;
 }
 
-type Tab = "galerie" | "shop";
+type Tab = "galerie" | "shop" | "texte";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -32,6 +32,8 @@ export default function AdminPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [content, setContent] = useState<Record<string, string>>({});
+  const [contentSaved, setContentSaved] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,8 +57,19 @@ export default function AdminPage() {
     if (session) {
       loadImages();
       loadProducts();
+      fetch("/api/content").then((r) => r.json()).then(setContent);
     }
   }, [session]);
+
+  const saveContent = async () => {
+    await fetch("/api/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(content),
+    });
+    setContentSaved(true);
+    setTimeout(() => setContentSaved(false), 2000);
+  };
 
   const loadImages = () =>
     fetch("/api/gallery").then((r) => r.json()).then(setImages);
@@ -132,7 +145,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-800">
-          {(["galerie", "shop"] as Tab[]).map((t) => (
+          {(["galerie", "shop", "texte"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -352,6 +365,153 @@ export default function AdminPage() {
             )}
           </div>
         </div>
+
+          {/* TEXTE TAB */}
+          {tab === "texte" && (
+            <div className="md:col-span-3">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-black uppercase text-sm tracking-widest text-gray-400">
+                  Website Texte bearbeiten
+                </h2>
+                <button
+                  onClick={saveContent}
+                  className={`px-6 py-2 font-black uppercase text-sm tracking-widest transition-colors ${
+                    contentSaved
+                      ? "bg-green-600 text-white"
+                      : "bg-red-600 text-white hover:bg-red-500"
+                  }`}
+                >
+                  {contentSaved ? "✓ Gespeichert!" : "Speichern"}
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Hero */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Startseite — Hero</h3>
+                  <div className="grid md:grid-cols-3 gap-3 mb-3">
+                    {["hero_title_1", "hero_title_2", "hero_title_3"].map((key, i) => (
+                      <div key={key}>
+                        <label className="block text-gray-500 text-xs uppercase mb-1">Titel Zeile {i + 1}</label>
+                        <input
+                          type="text"
+                          value={content[key] || ""}
+                          onChange={(e) => setContent({ ...content, [key]: e.target.value })}
+                          className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Badge Text</label>
+                    <input
+                      type="text"
+                      value={content.hero_badge || ""}
+                      onChange={(e) => setContent({ ...content, hero_badge: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Untertitel</label>
+                    <textarea
+                      value={content.hero_subtitle || ""}
+                      onChange={(e) => setContent({ ...content, hero_subtitle: e.target.value })}
+                      rows={2}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Button: Galerie</label>
+                      <input
+                        type="text"
+                        value={content.hero_btn_galerie || ""}
+                        onChange={(e) => setContent({ ...content, hero_btn_galerie: e.target.value })}
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Button: Shop</label>
+                      <input
+                        type="text"
+                        value={content.hero_btn_shop || ""}
+                        onChange={(e) => setContent({ ...content, hero_btn_shop: e.target.value })}
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Laufband */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Laufband (roter Streifen)</h3>
+                  <input
+                    type="text"
+                    value={content.marquee_text || ""}
+                    onChange={(e) => setContent({ ...content, marquee_text: e.target.value })}
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                  />
+                </div>
+
+                {/* Shop Teaser */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Startseite — Shop Bereich</h3>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Titel</label>
+                    <input
+                      type="text"
+                      value={content.shop_title || ""}
+                      onChange={(e) => setContent({ ...content, shop_title: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Text</label>
+                    <textarea
+                      value={content.shop_text || ""}
+                      onChange={(e) => setContent({ ...content, shop_text: e.target.value })}
+                      rows={2}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                </div>
+
+                {/* Galerie */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Galerie Seite</h3>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Untertitel</label>
+                    <input
+                      type="text"
+                      value={content.galerie_subtitle || ""}
+                      onChange={(e) => setContent({ ...content, galerie_subtitle: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Footer</h3>
+                  <input
+                    type="text"
+                    value={content.footer_text || ""}
+                    onChange={(e) => setContent({ ...content, footer_text: e.target.value })}
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                  />
+                </div>
+
+                <button
+                  onClick={saveContent}
+                  className={`w-full py-4 font-black uppercase tracking-widest transition-colors ${
+                    contentSaved ? "bg-green-600 text-white" : "bg-red-600 text-white hover:bg-red-500"
+                  }`}
+                >
+                  {contentSaved ? "✓ Gespeichert!" : "Alle Texte speichern"}
+                </button>
+              </div>
+            </div>
+          )}
       </div>
     </div>
   );

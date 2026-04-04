@@ -49,6 +49,13 @@ model Order {
   items      OrderItem[]
 }
 
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model OrderItem {
   id        String  @id @default(cuid())
   orderId   String
