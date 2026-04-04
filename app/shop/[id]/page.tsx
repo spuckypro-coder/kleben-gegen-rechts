@@ -5,6 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
+interface ProductImage {
+  id: string;
+  url: string;
+  position: number;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -13,6 +19,7 @@ interface Product {
   filename: string;
   stock: number;
   artist: string;
+  images: ProductImage[];
 }
 
 export default function ProductDetailPage() {
@@ -22,6 +29,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [activeImg, setActiveImg] = useState(0);
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
@@ -60,6 +68,12 @@ export default function ProductDetailPage() {
 
   if (!product) return null;
 
+  // Build full image list: cover first, then extras
+  const allImages = [
+    { id: "cover", url: product.filename },
+    ...product.images.map((img) => ({ id: img.id, url: img.url })),
+  ];
+
   return (
     <div className="min-h-screen bg-black py-12">
       <div className="max-w-5xl mx-auto px-4">
@@ -74,21 +88,60 @@ export default function ProductDetailPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-12">
-          {/* Bild */}
-          <div className="relative aspect-square bg-gray-900 border-2 border-gray-800"
-            style={{ boxShadow: "6px 6px 0px #ff0033" }}>
-            <Image
-              src={product.filename}
-              alt={product.name}
-              fill
-              className="object-contain p-4"
-              priority
-            />
-            {product.stock === 0 && (
-              <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                <span className="bg-red-600 text-white font-black uppercase text-xl px-6 py-3 rotate-[-3deg]">
-                  Ausverkauft
-                </span>
+          {/* Bilder */}
+          <div>
+            {/* Hauptbild */}
+            <div
+              className="relative aspect-square bg-gray-900 border-2 border-gray-800 mb-3"
+              style={{ boxShadow: "6px 6px 0px #ff0033" }}
+            >
+              <Image
+                src={allImages[activeImg].url}
+                alt={product.name}
+                fill
+                className="object-contain p-4"
+                priority
+              />
+              {product.stock === 0 && (
+                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                  <span className="bg-red-600 text-white font-black uppercase text-xl px-6 py-3 rotate-[-3deg]">
+                    Ausverkauft
+                  </span>
+                </div>
+              )}
+              {/* Prev/Next arrows wenn mehr als ein Bild */}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setActiveImg((i) => (i - 1 + allImages.length) % allImages.length)}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 text-white font-black text-xl w-9 h-9 flex items-center justify-center hover:bg-red-600 transition-colors"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={() => setActiveImg((i) => (i + 1) % allImages.length)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 text-white font-black text-xl w-9 h-9 flex items-center justify-center hover:bg-red-600 transition-colors"
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+            </div>
+
+            {/* Thumbnails */}
+            {allImages.length > 1 && (
+              <div className="flex gap-2 flex-wrap">
+                {allImages.map((img, i) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setActiveImg(i)}
+                    className={`relative w-16 h-16 border-2 transition-colors overflow-hidden bg-gray-900 ${
+                      activeImg === i ? "border-red-600" : "border-gray-700 hover:border-gray-400"
+                    }`}
+                  >
+                    <Image src={img.url} alt={`Foto ${i + 1}`} fill className="object-cover" />
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -131,7 +184,6 @@ export default function ProductDetailPage() {
             {/* Kaufen */}
             {product.stock > 0 && (
               <div>
-                {/* Menge */}
                 <div className="flex items-center gap-4 mb-4">
                   <label className="text-gray-500 text-xs font-black uppercase">Menge</label>
                   <div className="flex items-center border border-gray-700">

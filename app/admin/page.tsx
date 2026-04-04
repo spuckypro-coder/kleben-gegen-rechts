@@ -16,6 +16,12 @@ interface GalleryImage {
   featured: boolean;
 }
 
+interface ProductImage {
+  id: string;
+  url: string;
+  position: number;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -25,6 +31,7 @@ interface Product {
   stock: number;
   artist: string;
   active: boolean;
+  images: ProductImage[];
 }
 
 interface BlogPost {
@@ -61,6 +68,8 @@ export default function AdminPage() {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const extraImgRef = useRef<HTMLInputElement>(null);
+  const [extraUploading, setExtraUploading] = useState(false);
 
   // Blog state
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -166,7 +175,7 @@ export default function AdminPage() {
     fetch("/api/gallery").then((r) => r.json()).then(setImages);
 
   const loadProducts = () =>
-    fetch("/api/products").then((r) => r.json()).then(setProducts);
+    fetch("/api/products").then((r) => r.json()).then((data) => setProducts(Array.isArray(data) ? data : []));
 
   const saveProduct = async () => {
     if (!editProduct) return;
@@ -176,6 +185,40 @@ export default function AdminPage() {
       body: JSON.stringify(editProduct),
     });
     setEditProduct(null);
+    loadProducts();
+  };
+
+  const addExtraImage = async (file: File) => {
+    if (!editProduct) return;
+    setExtraUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload-blog-image", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.url) {
+      await fetch(`/api/products/${editProduct.id}/images`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: data.url }),
+      });
+      // Reload product images
+      const updated = await fetch(`/api/products/${editProduct.id}`).then((r) => r.json());
+      setEditProduct(updated);
+      loadProducts();
+    }
+    setExtraUploading(false);
+    if (extraImgRef.current) extraImgRef.current.value = "";
+  };
+
+  const deleteExtraImage = async (imageId: string) => {
+    if (!editProduct) return;
+    await fetch(`/api/products/${editProduct.id}/images`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageId }),
+    });
+    const updated = await fetch(`/api/products/${editProduct.id}`).then((r) => r.json());
+    setEditProduct(updated);
     loadProducts();
   };
 
@@ -506,7 +549,7 @@ export default function AdminPage() {
                         <p className="text-yellow-400 text-xs font-bold">{prod.price.toFixed(2)} €</p>
                         <p className="text-gray-500 text-xs mb-2">Lager: {prod.stock} | {prod.active ? "Aktiv" : "Inaktiv"}</p>
                         <div className="flex gap-1">
-                          <button onClick={() => setEditProduct({ ...prod })}
+                          <button onClick={() => setEditProduct({ ...prod, images: prod.images || [] })}
                             className="flex-1 py-1 text-xs font-black uppercase bg-yellow-400 text-black hover:bg-yellow-300 transition-colors">
                             Bearbeiten
                           </button>
@@ -967,6 +1010,49 @@ export default function AdminPage() {
                   onChange={(e) => setEditProduct({ ...editProduct, stock: parseInt(e.target.value) || 0 })}
                   className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
               </div>
+            </div>
+
+            {/* Weitere Fotos */}
+            <div className="mb-6">
+              <label className="block text-gray-500 text-xs uppercase mb-2">Weitere Fotos</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {/* Cover-Bild */}
+                <div className="relative w-20 h-20 border-2 border-yellow-400 bg-gray-800 shrink-0">
+                  <Image src={editProduct.filename} alt="Cover" fill className="object-cover" />
+                  <div className="absolute bottom-0 left-0 right-0 bg-yellow-400 text-black text-[9px] font-black text-center">COVER</div>
+                </div>
+                {/* Extra Bilder */}
+                {editProduct.images.map((img) => (
+                  <div key={img.id} className="relative w-20 h-20 border border-gray-700 bg-gray-800 group shrink-0">
+                    <Image src={img.url} alt="Foto" fill className="object-cover" />
+                    <button
+                      onClick={() => deleteExtraImage(img.id)}
+                      className="absolute top-0 right-0 bg-red-600 text-white text-xs font-black w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                {/* Upload-Button */}
+                <button
+                  onClick={() => extraImgRef.current?.click()}
+                  disabled={extraUploading}
+                  className="w-20 h-20 border-2 border-dashed border-gray-600 hover:border-red-500 text-gray-500 hover:text-red-500 flex flex-col items-center justify-center text-xs font-black uppercase transition-colors disabled:opacity-50"
+                >
+                  {extraUploading ? "..." : <>
+                    <span className="text-2xl">+</span>
+                    <span>Foto</span>
+                  </>}
+                </button>
+                <input
+                  ref={extraImgRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) addExtraImage(f); }}
+                />
+              </div>
+              <p className="text-gray-600 text-xs">Über das Cover-Bild schwebt "COVER". Weitere Fotos erscheinen als Galerie auf der Produktseite.</p>
             </div>
 
             <div className="mb-6">
