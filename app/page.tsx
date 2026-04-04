@@ -89,14 +89,12 @@ export default async function Home() {
 
       {/* MARQUEE */}
       <section className="bg-red-600 py-5 overflow-hidden">
-        <div className="flex whitespace-nowrap">
-          <div className="flex animate-[marquee_20s_linear_infinite]">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <span key={i} className="text-white font-black uppercase text-xl mx-8 shrink-0">
-                {c.marquee_text}
-              </span>
-            ))}
-          </div>
+        <div className="flex whitespace-nowrap" style={{ animation: "marquee 25s linear infinite" }}>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <span key={i} className="text-white font-black uppercase text-xl mx-10 shrink-0">
+              {c.marquee_text} <span className="text-yellow-300 mx-4">✊</span>
+            </span>
+          ))}
         </div>
       </section>
 

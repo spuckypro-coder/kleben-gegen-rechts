@@ -71,6 +71,12 @@ body {
   background: #ff0033;
 }
 
+/* Marquee animation */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 /* Upload drop zone */
 .drop-zone {
   border: 3px dashed #444;
