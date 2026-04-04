@@ -490,15 +490,100 @@ export default function AdminPage() {
                   </div>
                 </div>
 
+                {/* Über uns */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Über uns — Startseite</h3>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Badge</label>
+                    <input type="text" value={content.about_badge || ""} onChange={(e) => setContent({ ...content, about_badge: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Titel</label>
+                    <input type="text" value={content.about_title || ""} onChange={(e) => setContent({ ...content, about_title: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Text 1</label>
+                    <textarea value={content.about_text || ""} onChange={(e) => setContent({ ...content, about_text: e.target.value })} rows={3}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Text 2</label>
+                    <textarea value={content.about_text_2 || ""} onChange={(e) => setContent({ ...content, about_text_2: e.target.value })} rows={3}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                  </div>
+                </div>
+
+                {/* Kontakt & Social */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Kontakt & Social Media</h3>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Instagram Handle (z.B. @klebengegendrechts)</label>
+                    <input type="text" value={content.contact_instagram || ""} onChange={(e) => setContent({ ...content, contact_instagram: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">E-Mail Adresse</label>
+                    <input type="text" value={content.contact_email || ""} onChange={(e) => setContent({ ...content, contact_email: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Kontakt Text</label>
+                    <textarea value={content.contact_text || ""} onChange={(e) => setContent({ ...content, contact_text: e.target.value })} rows={2}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                  </div>
+                </div>
+
+                {/* SEO Meta */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-1">SEO — Meta Titel & Beschreibung</h3>
+                  <p className="text-gray-600 text-xs mb-4">Diese Texte erscheinen in Google-Suchergebnissen.</p>
+                  {[
+                    { label: "Startseite — Titel", key: "seo_home_title" },
+                    { label: "Startseite — Beschreibung", key: "seo_home_description" },
+                    { label: "Galerie — Titel", key: "seo_galerie_title" },
+                    { label: "Galerie — Beschreibung", key: "seo_galerie_description" },
+                    { label: "Shop — Titel", key: "seo_shop_title" },
+                    { label: "Shop — Beschreibung", key: "seo_shop_description" },
+                  ].map(({ label, key }) => (
+                    <div key={key} className="mb-3">
+                      <label className="block text-gray-500 text-xs uppercase mb-1">{label}</label>
+                      <input type="text" value={content[key] || ""} onChange={(e) => setContent({ ...content, [key]: e.target.value })}
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                    </div>
+                  ))}
+                </div>
+
+                {/* SEO Texte */}
+                <div className="bg-gray-950 border border-gray-800 p-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-1">SEO — Inhaltstexte</h3>
+                  <p className="text-gray-600 text-xs mb-4">Längere Texte am Ende jeder Seite — gut für Google.</p>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Startseite SEO Text</label>
+                    <textarea value={content.seo_text_home || ""} onChange={(e) => setContent({ ...content, seo_text_home: e.target.value })} rows={4}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                      placeholder="Keyword-reicher Text der unten auf der Seite erscheint..." />
+                  </div>
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Galerie SEO Text</label>
+                    <textarea value={content.seo_text_galerie || ""} onChange={(e) => setContent({ ...content, seo_text_galerie: e.target.value })} rows={4}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                      placeholder="Text über die Galerie für Suchmaschinen..." />
+                  </div>
+                  <div>
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Shop SEO Text</label>
+                    <textarea value={content.seo_text_shop || ""} onChange={(e) => setContent({ ...content, seo_text_shop: e.target.value })} rows={4}
+                      className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                      placeholder="Text über den Shop für Suchmaschinen..." />
+                  </div>
+                </div>
+
                 {/* Footer */}
                 <div className="bg-gray-950 border border-gray-800 p-6">
                   <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Footer</h3>
-                  <input
-                    type="text"
-                    value={content.footer_text || ""}
-                    onChange={(e) => setContent({ ...content, footer_text: e.target.value })}
-                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
-                  />
+                  <input type="text" value={content.footer_text || ""} onChange={(e) => setContent({ ...content, footer_text: e.target.value })}
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
                 </div>
 
                 <button

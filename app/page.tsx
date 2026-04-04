@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getContent } from "@/lib/content";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const c = await getContent();
+  return {
+    title: c.seo_home_title,
+    description: c.seo_home_description,
+  };
+}
 
 export default async function Home() {
   const [latestImages, c] = await Promise.all([
@@ -27,17 +36,10 @@ export default async function Home() {
             {c.hero_subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/galerie"
-              className="px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors"
-              style={{ boxShadow: "4px 4px 0px #ffcc00" }}
-            >
+            <Link href="/galerie" className="px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors" style={{ boxShadow: "4px 4px 0px #ffcc00" }}>
               {c.hero_btn_galerie}
             </Link>
-            <Link
-              href="/shop"
-              className="px-8 py-4 border-2 border-white text-white font-black uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
-            >
+            <Link href="/shop" className="px-8 py-4 border-2 border-white text-white font-black uppercase tracking-widest hover:bg-white hover:text-black transition-colors">
               {c.hero_btn_shop}
             </Link>
           </div>
@@ -59,9 +61,7 @@ export default async function Home() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {latestImages.map((img, i) => (
-              <Link
-                key={img.id}
-                href="/galerie"
+              <Link key={img.id} href="/galerie"
                 className={`relative overflow-hidden bg-gray-900 group sticker-card ${i === 0 ? "md:col-span-2 md:row-span-2" : ""}`}
                 style={{ aspectRatio: "1" }}
               >
@@ -97,13 +97,36 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ÜBER UNS */}
+      {(c.about_text || c.about_title) && (
+        <section className="max-w-6xl mx-auto px-4 py-20">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              {c.about_badge && (
+                <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">
+                  {c.about_badge}
+                </div>
+              )}
+              <h2 className="text-4xl font-black uppercase mb-6">
+                {c.about_title}
+              </h2>
+              {c.about_text && <p className="text-gray-400 mb-4 leading-relaxed">{c.about_text}</p>}
+              {c.about_text_2 && <p className="text-gray-400 leading-relaxed">{c.about_text_2}</p>}
+            </div>
+            <div className="border-l-4 border-red-600 pl-8">
+              <p className="text-2xl font-black uppercase text-white leading-tight">
+                &ldquo;Antifaschismus ist keine Meinung — es ist eine Notwendigkeit.&rdquo;
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* SHOP TEASER */}
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">
-              {c.shop_badge}
-            </div>
+            <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">{c.shop_badge}</div>
             <h2 className="text-4xl font-black uppercase mb-4">
               <span className="text-red-500">{c.shop_title}</span>
             </h2>
@@ -118,6 +141,43 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* KONTAKT */}
+      {(c.contact_instagram || c.contact_email || c.contact_text) && (
+        <section className="border-t border-gray-800 py-16">
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <h2 className="text-3xl font-black uppercase mb-4">
+              <span className="text-red-500">Kontakt</span> & Social
+            </h2>
+            {c.contact_text && <p className="text-gray-400 mb-6 max-w-lg mx-auto">{c.contact_text}</p>}
+            <div className="flex gap-4 justify-center flex-wrap">
+              {c.contact_instagram && (
+                <a href={`https://instagram.com/${c.contact_instagram.replace("@", "")}`} target="_blank" rel="noopener noreferrer"
+                  className="px-6 py-3 border-2 border-white font-black uppercase text-sm hover:bg-white hover:text-black transition-colors">
+                  Instagram: {c.contact_instagram}
+                </a>
+              )}
+              {c.contact_email && (
+                <a href={`mailto:${c.contact_email}`}
+                  className="px-6 py-3 border-2 border-gray-700 font-black uppercase text-sm text-gray-400 hover:border-white hover:text-white transition-colors">
+                  {c.contact_email}
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* SEO TEXT */}
+      {c.seo_text_home && (
+        <section className="border-t border-gray-900 py-12">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-gray-600 text-sm leading-relaxed prose prose-invert max-w-none">
+              {c.seo_text_home}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
