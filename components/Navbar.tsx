@@ -34,6 +34,12 @@ export default function Navbar() {
           >
             Shop
           </Link>
+          <Link
+            href="/blog"
+            className="uppercase font-bold text-sm tracking-widest hover:text-red-500 transition-colors"
+          >
+            Blog
+          </Link>
           {session ? (
             <>
               <Link
@@ -80,6 +86,13 @@ export default function Navbar() {
             className="uppercase font-bold text-sm tracking-widest hover:text-yellow-400"
           >
             Shop
+          </Link>
+          <Link
+            href="/blog"
+            onClick={() => setOpen(false)}
+            className="uppercase font-bold text-sm tracking-widest hover:text-red-500"
+          >
+            Blog
           </Link>
           {session && (
             <>

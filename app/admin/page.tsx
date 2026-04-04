@@ -4,6 +4,9 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
+
+const BlogEditor = dynamic(() => import("@/components/BlogEditor"), { ssr: false });
 
 interface GalleryImage {
   id: string;
@@ -24,7 +27,27 @@ interface Product {
   active: boolean;
 }
 
-type Tab = "galerie" | "shop" | "texte";
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  coverImage?: string;
+  category: string;
+  published: boolean;
+  createdAt: string;
+}
+
+interface BlogDraft {
+  title: string;
+  content: string;
+  excerpt: string;
+  category: string;
+  sources: string;
+  published: boolean;
+}
+
+type Tab = "galerie" | "shop" | "blog" | "texte";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -38,6 +61,20 @@ export default function AdminPage() {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Blog state
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [blogDraft, setBlogDraft] = useState<BlogDraft>({
+    title: "",
+    content: "",
+    excerpt: "",
+    category: "antifaschismus",
+    sources: "",
+    published: false,
+  });
+  const [blogSaving, setBlogSaving] = useState(false);
+  const [blogMode, setBlogMode] = useState<"list" | "new" | "edit">("list");
 
   // Gallery form
   const [imgTitle, setImgTitle] = useState("");
@@ -59,9 +96,59 @@ export default function AdminPage() {
     if (session) {
       loadImages();
       loadProducts();
+      loadBlogPosts();
       fetch("/api/content").then((r) => r.json()).then(setContent);
     }
   }, [session]);
+
+  const loadBlogPosts = () =>
+    fetch("/api/blog?all=1").then((r) => r.json()).then((data) => {
+      setBlogPosts(Array.isArray(data) ? data : []);
+    });
+
+  const saveBlogPost = async () => {
+    if (!blogDraft.title.trim()) return;
+    setBlogSaving(true);
+    if (blogMode === "new") {
+      await fetch("/api/blog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(blogDraft),
+      });
+    } else if (blogMode === "edit" && editingPost) {
+      await fetch(`/api/blog/${editingPost.slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(blogDraft),
+      });
+    }
+    setBlogSaving(false);
+    setBlogMode("list");
+    setEditingPost(null);
+    setBlogDraft({ title: "", content: "", excerpt: "", category: "antifaschismus", sources: "", published: false });
+    loadBlogPosts();
+  };
+
+  const deleteBlogPost = async (slug: string) => {
+    if (!confirm("Beitrag löschen?")) return;
+    await fetch(`/api/blog/${slug}`, { method: "DELETE" });
+    loadBlogPosts();
+  };
+
+  const startEditPost = (post: BlogPost) => {
+    fetch(`/api/blog/${post.slug}`).then((r) => r.json()).then((data) => {
+      setEditingPost(post);
+      setBlogDraft({
+        title: data.title || "",
+        content: data.content || "",
+        excerpt: data.excerpt || "",
+        category: data.category || "antifaschismus",
+        sources: data.sources || "",
+        published: data.published ?? false,
+      });
+      setBlogMode("edit");
+    });
+  };
 
   const saveContent = async () => {
     await fetch("/api/content", {
@@ -163,8 +250,8 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-gray-800">
-          {(["galerie", "shop", "texte"] as Tab[]).map((t) => (
+        <div className="flex gap-2 mb-8 border-b border-gray-800 flex-wrap">
+          {(["galerie", "shop", "blog", "texte"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -179,7 +266,7 @@ export default function AdminPage() {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        {(tab === "galerie" || tab === "shop") && <div className="grid md:grid-cols-3 gap-8">
           {/* Upload Form */}
           <div className="md:col-span-1">
             <div className="bg-gray-950 border border-gray-800 p-6">
@@ -386,7 +473,166 @@ export default function AdminPage() {
               </>
             )}
           </div>
-        </div>
+        </div>}
+
+          {/* BLOG TAB */}
+          {tab === "blog" && (
+            <div>
+              {blogMode === "list" ? (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="font-black uppercase text-sm tracking-widest text-gray-400">
+                      Blog Beiträge ({blogPosts.length})
+                    </h2>
+                    <button
+                      onClick={() => { setBlogMode("new"); setBlogDraft({ title: "", content: "", excerpt: "", category: "antifaschismus", sources: "", published: false }); }}
+                      className="px-6 py-2 bg-red-600 text-white font-black uppercase text-sm tracking-widest hover:bg-red-500 transition-colors"
+                    >
+                      + Neuer Beitrag
+                    </button>
+                  </div>
+                  {blogPosts.length === 0 ? (
+                    <div className="text-center py-20 border-2 border-dashed border-gray-700">
+                      <p className="text-gray-500 font-bold uppercase">Noch keine Beiträge</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {blogPosts.map((post) => (
+                        <div key={post.id} className="bg-gray-950 border border-gray-800 p-4 flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`px-2 py-0.5 text-xs font-black uppercase ${post.published ? "bg-green-600 text-white" : "bg-gray-700 text-gray-400"}`}>
+                                {post.published ? "Veröffentlicht" : "Entwurf"}
+                              </span>
+                              <span className="px-2 py-0.5 bg-gray-800 text-gray-400 text-xs font-black uppercase">
+                                {post.category}
+                              </span>
+                            </div>
+                            <p className="font-black uppercase truncate">{post.title}</p>
+                            <p className="text-gray-600 text-xs">{new Date(post.createdAt).toLocaleDateString("de-DE")}</p>
+                          </div>
+                          <div className="flex gap-2 shrink-0">
+                            <button
+                              onClick={() => startEditPost(post)}
+                              className="px-4 py-2 bg-yellow-400 text-black font-black uppercase text-xs hover:bg-yellow-300 transition-colors"
+                            >
+                              Bearbeiten
+                            </button>
+                            <button
+                              onClick={() => deleteBlogPost(post.slug)}
+                              className="px-4 py-2 border border-gray-700 text-gray-500 font-black uppercase text-xs hover:border-red-600 hover:text-red-500 transition-colors"
+                            >
+                              Löschen
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="font-black uppercase text-sm tracking-widest text-gray-400">
+                      {blogMode === "new" ? "Neuer Beitrag" : "Beitrag bearbeiten"}
+                    </h2>
+                    <button
+                      onClick={() => { setBlogMode("list"); setEditingPost(null); }}
+                      className="px-4 py-2 border border-gray-700 text-gray-400 font-black uppercase text-xs hover:text-white hover:border-white transition-colors"
+                    >
+                      ← Zurück
+                    </button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Titel *</label>
+                      <input
+                        type="text"
+                        value={blogDraft.title}
+                        onChange={(e) => setBlogDraft({ ...blogDraft, title: e.target.value })}
+                        placeholder="Titel des Beitrags..."
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                      />
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-500 text-xs uppercase mb-1">Kategorie</label>
+                        <select
+                          value={blogDraft.category}
+                          onChange={(e) => setBlogDraft({ ...blogDraft, category: e.target.value })}
+                          className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                        >
+                          <option value="antifaschismus">Antifaschismus</option>
+                          <option value="polizeigewalt">Polizeigewalt</option>
+                          <option value="linke-themen">Linke Themen</option>
+                          <option value="news">Aktuelle News</option>
+                        </select>
+                      </div>
+                      <div className="flex items-end">
+                        <label className="flex items-center gap-3 cursor-pointer"
+                          onClick={() => setBlogDraft({ ...blogDraft, published: !blogDraft.published })}>
+                          <div className={`w-12 h-6 rounded-full transition-colors relative ${blogDraft.published ? "bg-green-600" : "bg-gray-700"}`}>
+                            <div className={`absolute top-0 w-6 h-6 bg-white rounded-full transition-transform shadow ${blogDraft.published ? "translate-x-6" : "translate-x-0"}`} />
+                          </div>
+                          <span className="font-black uppercase text-sm">
+                            {blogDraft.published ? "Veröffentlicht" : "Entwurf"}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Kurzbeschreibung (Vorschau)</label>
+                      <textarea
+                        value={blogDraft.excerpt}
+                        onChange={(e) => setBlogDraft({ ...blogDraft, excerpt: e.target.value })}
+                        rows={2}
+                        placeholder="Kurze Zusammenfassung, erscheint in der Übersicht..."
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-2">Inhalt</label>
+                      <BlogEditor
+                        content={blogDraft.content}
+                        onChange={(html) => setBlogDraft({ ...blogDraft, content: html })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Quellen (eine pro Zeile, URLs oder Text)</label>
+                      <textarea
+                        value={blogDraft.sources}
+                        onChange={(e) => setBlogDraft({ ...blogDraft, sources: e.target.value })}
+                        rows={4}
+                        placeholder={"https://tagesschau.de/...\nhttps://nd-aktuell.de/...\nBuch: Autor, Titel, Jahr"}
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600 font-mono"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={saveBlogPost}
+                        disabled={blogSaving || !blogDraft.title.trim()}
+                        className="flex-1 py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {blogSaving ? "Speichern..." : blogMode === "new" ? "Beitrag erstellen" : "Beitrag speichern"}
+                      </button>
+                      <button
+                        onClick={() => { setBlogMode("list"); setEditingPost(null); }}
+                        className="px-6 py-4 border border-gray-700 text-gray-400 font-black uppercase hover:border-white hover:text-white transition-colors"
+                      >
+                        Abbrechen
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* TEXTE TAB */}
           {tab === "texte" && (

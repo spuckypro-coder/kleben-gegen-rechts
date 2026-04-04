@@ -80,3 +80,69 @@ body {
   border-color: #ff0033;
   background: rgba(255, 0, 51, 0.08);
 }
+
+/* Blog content (Tiptap rendered HTML) */
+.blog-content h2 {
+  font-size: 1.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 2rem 0 1rem;
+  color: #fff;
+}
+.blog-content h3 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 1.5rem 0 0.75rem;
+  color: #fff;
+}
+.blog-content p {
+  margin: 1rem 0;
+  line-height: 1.75;
+}
+.blog-content ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+.blog-content ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+.blog-content li {
+  margin: 0.4rem 0;
+}
+.blog-content blockquote {
+  border-left: 4px solid #ff0033;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: #aaa;
+  font-style: italic;
+}
+.blog-content img {
+  max-width: 100%;
+  margin: 1.5rem auto;
+  display: block;
+  border: 2px solid #333;
+}
+.blog-content a {
+  color: #ffcc00;
+  text-decoration: underline;
+}
+.blog-content strong { font-weight: 900; color: #fff; }
+.blog-content em { font-style: italic; }
+.blog-content u { text-decoration: underline; }
+
+/* Tiptap editor prose styles */
+.ProseMirror {
+  min-height: 300px;
+  outline: none;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #555;
+  pointer-events: none;
+  height: 0;
+}
