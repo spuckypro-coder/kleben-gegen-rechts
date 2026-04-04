@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   });
 
   const lineItems = cart.map((item) => {
-    const product = products.find((p) => p.id === item.id);
+    const product = products.find((p: { id: string }) => p.id === item.id);
     if (!product) throw new Error(`Produkt nicht gefunden: ${item.id}`);
     return {
       price_data: {
