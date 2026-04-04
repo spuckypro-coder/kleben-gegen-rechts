@@ -36,13 +36,13 @@ export default async function Home() {
           <h1 className="text-4xl sm:text-6xl md:text-8xl font-black uppercase leading-none mb-6">
             <span className="block text-white">{c.hero_title_1}</span>
             <span className="block text-red-500">{c.hero_title_2}</span>
-            <span className="block text-yellow-400">{c.hero_title_3}</span>
+            <span className="block text-orange-500">{c.hero_title_3}</span>
           </h1>
           <p className="text-gray-400 text-lg max-w-xl mx-auto mb-10 font-medium">
             {c.hero_subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center px-4">
-            <Link href="/galerie" className="px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors" style={{ boxShadow: "4px 4px 0px #ffcc00" }}>
+            <Link href="/galerie" className="px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors" style={{ boxShadow: "4px 4px 0px #ff6600" }}>
               {c.hero_btn_galerie}
             </Link>
             <Link href="/shop" className="px-8 py-4 border-2 border-white text-white font-black uppercase tracking-widest hover:bg-white hover:text-black transition-colors">
@@ -51,7 +51,7 @@ export default async function Home() {
           </div>
         </div>
         <div className="absolute top-0 left-0 w-2 h-full bg-red-600" />
-        <div className="absolute top-0 right-0 w-2 h-full bg-yellow-400" />
+        <div className="absolute top-0 right-0 w-2 h-full bg-orange-500" />
       </section>
 
       {/* ÜBER UNS */}
@@ -60,7 +60,7 @@ export default async function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               {c.about_badge && (
-                <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">
+                <div className="inline-block mb-4 px-3 py-1 bg-orange-500 text-black text-xs font-black uppercase">
                   {c.about_badge}
                 </div>
               )}
@@ -86,7 +86,7 @@ export default async function Home() {
             <h2 className="text-3xl font-black uppercase">
               <span className="text-red-500">Letzte</span> Beiträge
             </h2>
-            <Link href="/blog" className="text-yellow-400 font-bold uppercase text-sm tracking-widest hover:underline">
+            <Link href="/blog" className="text-orange-500 font-bold uppercase text-sm tracking-widest hover:underline">
               Alle ansehen →
             </Link>
           </div>
@@ -126,7 +126,7 @@ export default async function Home() {
             <h2 className="text-3xl font-black uppercase">
               <span className="text-red-500">Aktuelle</span> Werke
             </h2>
-            <Link href="/galerie" className="text-yellow-400 font-bold uppercase text-sm tracking-widest hover:underline">
+            <Link href="/galerie" className="text-orange-500 font-bold uppercase text-sm tracking-widest hover:underline">
               Alle ansehen →
             </Link>
           </div>
@@ -160,7 +160,7 @@ export default async function Home() {
         <div className="flex whitespace-nowrap" style={{ animation: "marquee 25s linear infinite" }}>
           {Array.from({ length: 8 }).map((_, i) => (
             <span key={i} className="text-white font-black uppercase text-base sm:text-xl mx-6 sm:mx-10 shrink-0">
-              {c.marquee_text} <span className="text-yellow-300 mx-4">✊</span>
+              {c.marquee_text} <span className="text-orange-400 mx-4">✊</span>
             </span>
           ))}
         </div>
@@ -169,7 +169,7 @@ export default async function Home() {
       {/* FEATURED PRODUCT */}
       {featuredProduct && (
         <section className="max-w-6xl mx-auto px-4 py-10 md:py-20">
-          <div className="grid md:grid-cols-2 gap-0 border-2 border-yellow-400" style={{ boxShadow: "8px 8px 0px #ff0033" }}>
+          <div className="grid md:grid-cols-2 gap-0 border-2 border-orange-500" style={{ boxShadow: "8px 8px 0px #ff0033" }}>
             {/* Bild */}
             <div className="relative aspect-video md:aspect-square bg-gray-900">
               <Image
@@ -178,7 +178,7 @@ export default async function Home() {
                 fill
                 className="object-cover"
               />
-              <div className="absolute top-0 left-0 px-4 py-2 bg-yellow-400 text-black font-black uppercase text-xs tracking-widest">
+              <div className="absolute top-0 left-0 px-4 py-2 bg-orange-500 text-black font-black uppercase text-xs tracking-widest">
                 ★ Highlight
               </div>
             </div>
@@ -193,7 +193,7 @@ export default async function Home() {
                     dangerouslySetInnerHTML={{ __html: featuredProduct.description }}
                   />
                 )}
-                <div className="text-3xl sm:text-5xl font-black text-yellow-400 mb-6 md:mb-8">
+                <div className="text-3xl sm:text-5xl font-black text-orange-500 mb-6 md:mb-8">
                   {featuredProduct.price.toFixed(2)} €
                 </div>
               </div>
@@ -201,7 +201,7 @@ export default async function Home() {
                 <Link
                   href={`/shop/${featuredProduct.id}`}
                   className="flex-1 text-center py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors"
-                  style={{ boxShadow: "4px 4px 0px #ffcc00" }}
+                  style={{ boxShadow: "4px 4px 0px #ff6600" }}
                 >
                   Jetzt kaufen →
                 </Link>
@@ -222,12 +222,12 @@ export default async function Home() {
       <section className="max-w-6xl mx-auto px-4 py-10 md:py-20">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">{c.shop_badge}</div>
+            <div className="inline-block mb-4 px-3 py-1 bg-orange-500 text-black text-xs font-black uppercase">{c.shop_badge}</div>
             <h2 className="text-4xl font-black uppercase mb-4">
               <span className="text-red-500">{c.shop_title}</span>
             </h2>
             <p className="text-gray-400 mb-6">{c.shop_text}</p>
-            <Link href="/shop" className="inline-block px-6 py-3 bg-yellow-400 text-black font-black uppercase tracking-widest hover:bg-yellow-300 transition-colors">
+            <Link href="/shop" className="inline-block px-6 py-3 bg-orange-500 text-black font-black uppercase tracking-widest hover:bg-orange-400 transition-colors">
               Zum Shop →
             </Link>
           </div>

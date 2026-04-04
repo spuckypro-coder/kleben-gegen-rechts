@@ -91,7 +91,7 @@ export default function GaleriePage() {
                   className="w-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 {img.featured && (
-                  <div className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-black px-2 py-0.5 uppercase">
+                  <div className="absolute top-2 left-2 bg-orange-500 text-black text-xs font-black px-2 py-0.5 uppercase">
                     Featured
                   </div>
                 )}
@@ -129,7 +129,7 @@ export default function GaleriePage() {
             >
               ✕ SCHLIESSEN
             </button>
-            <div className="border-2 border-red-600" style={{ boxShadow: "6px 6px 0px #ffcc00" }}>
+            <div className="border-2 border-red-600" style={{ boxShadow: "6px 6px 0px #ff6600" }}>
               <Image
                 src={selected.filename}
                 alt={selected.title}

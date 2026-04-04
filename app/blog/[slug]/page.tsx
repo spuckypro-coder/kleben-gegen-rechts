@@ -136,7 +136,7 @@ export default async function BlogPostPage(
 
           {/* Excerpt */}
           {post.excerpt && (
-            <p className="text-base sm:text-xl text-gray-300 leading-relaxed mb-6 md:mb-8 border-l-4 border-yellow-400 pl-3 sm:pl-4">
+            <p className="text-base sm:text-xl text-gray-300 leading-relaxed mb-6 md:mb-8 border-l-4 border-orange-500 pl-3 sm:pl-4">
               {post.excerpt}
             </p>
           )}
@@ -180,7 +180,7 @@ export default async function BlogPostPage(
                           href={src}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-yellow-400 hover:text-yellow-300 underline break-all"
+                          className="text-orange-500 hover:text-orange-400 underline break-all"
                         >
                           {src}
                         </a>
