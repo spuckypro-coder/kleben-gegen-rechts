@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -172,25 +173,34 @@ export default function ShopPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map((product) => (
               <div key={product.id} className="group sticker-card bg-gray-950 border border-gray-800">
-                <div className="relative aspect-square overflow-hidden bg-gray-900">
-                  <Image
-                    src={product.filename}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.stock === 0 && (
-                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                      <span className="bg-red-600 text-white font-black uppercase px-3 py-1 text-sm">
-                        Ausverkauft
+                <Link href={`/shop/${product.id}`} className="block">
+                  <div className="relative aspect-square overflow-hidden bg-gray-900">
+                    <Image
+                      src={product.filename}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {product.stock === 0 && (
+                      <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                        <span className="bg-red-600 text-white font-black uppercase px-3 py-1 text-sm">
+                          Ausverkauft
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-white text-black font-black uppercase text-xs px-3 py-1">
+                        Details ansehen
                       </span>
                     </div>
-                  )}
-                </div>
+                  </div>
+                </Link>
                 <div className="p-4">
-                  <h3 className="font-black uppercase text-sm mb-1">
-                    {product.name}
-                  </h3>
+                  <Link href={`/shop/${product.id}`}>
+                    <h3 className="font-black uppercase text-sm mb-1 hover:text-red-500 transition-colors">
+                      {product.name}
+                    </h3>
+                  </Link>
                   <p className="text-gray-500 text-xs mb-1">{product.artist}</p>
                   {product.description && (
                     <p className="text-gray-400 text-xs mb-3 line-clamp-2">
