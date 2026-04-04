@@ -81,6 +81,8 @@ export default function AdminPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const extraImgRef = useRef<HTMLInputElement>(null);
   const [extraUploading, setExtraUploading] = useState(false);
+  const coverImgRef = useRef<HTMLInputElement>(null);
+  const [coverUploading, setCoverUploading] = useState(false);
 
   // Blog state
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -180,6 +182,17 @@ export default function AdminPage() {
     fetch("/api/blog?all=1").then((r) => r.json()).then((data) => {
       setBlogPosts(Array.isArray(data) ? data : []);
     });
+
+  const uploadCoverImage = async (file: File) => {
+    setCoverUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload-blog-image", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.url) setBlogDraft((prev) => ({ ...prev, coverImage: data.url }));
+    setCoverUploading(false);
+    if (coverImgRef.current) coverImgRef.current.value = "";
+  };
 
   const saveBlogPost = async () => {
     if (!blogDraft.title.trim()) return;
@@ -737,6 +750,46 @@ export default function AdminPage() {
                           </span>
                         </label>
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-2">Cover-Bild</label>
+                      {blogDraft.coverImage ? (
+                        <div className="relative aspect-video bg-gray-900 border border-gray-700 overflow-hidden mb-2">
+                          <Image src={blogDraft.coverImage} alt="Cover" fill className="object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => setBlogDraft((prev) => ({ ...prev, coverImage: "" }))}
+                            className="absolute top-2 right-2 bg-black/80 text-white font-black text-xs px-2 py-1 hover:text-red-500"
+                          >
+                            ✕ Entfernen
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => coverImgRef.current?.click()}
+                          disabled={coverUploading}
+                          className="w-full aspect-video border-2 border-dashed border-gray-600 hover:border-red-500 text-gray-500 hover:text-red-500 flex flex-col items-center justify-center transition-colors disabled:opacity-50 mb-2"
+                        >
+                          {coverUploading ? (
+                            <span className="font-black uppercase text-sm">Hochladen...</span>
+                          ) : (
+                            <>
+                              <span className="text-3xl mb-1">🖼</span>
+                              <span className="font-black uppercase text-xs">Cover-Bild hochladen</span>
+                              <span className="text-xs mt-1">Empfohlen: 1200 × 630 px</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                      <input
+                        ref={coverImgRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCoverImage(f); }}
+                      />
                     </div>
 
                     <div>
