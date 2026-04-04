@@ -83,7 +83,7 @@ export default function ProductDetailPage() {
           <span className="text-gray-400">{product.name}</span>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-12">
           {/* Bilder */}
           <div>
             {/* Hauptbild */}
@@ -110,13 +110,13 @@ export default function ProductDetailPage() {
                 <>
                   <button
                     onClick={() => setActiveImg((i) => (i - 1 + allImages.length) % allImages.length)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 text-white font-black text-xl w-9 h-9 flex items-center justify-center hover:bg-red-600 transition-colors"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 text-white font-black text-xl w-11 h-11 flex items-center justify-center hover:bg-red-600 transition-colors"
                   >
                     ‹
                   </button>
                   <button
                     onClick={() => setActiveImg((i) => (i + 1) % allImages.length)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 text-white font-black text-xl w-9 h-9 flex items-center justify-center hover:bg-red-600 transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 text-white font-black text-xl w-11 h-11 flex items-center justify-center hover:bg-red-600 transition-colors"
                   >
                     ›
                   </button>
@@ -148,10 +148,10 @@ export default function ProductDetailPage() {
               <div className="inline-block mb-3 px-3 py-1 bg-gray-800 text-gray-400 text-xs font-black uppercase tracking-widest">
                 {product.artist}
               </div>
-              <h1 className="text-4xl font-black uppercase mb-4 leading-tight">
+              <h1 className="text-2xl sm:text-4xl font-black uppercase mb-4 leading-tight">
                 {product.name}
               </h1>
-              <div className="text-4xl font-black text-yellow-400 mb-6">
+              <div className="text-3xl sm:text-4xl font-black text-yellow-400 mb-6">
                 {product.price.toFixed(2)} €
               </div>
 

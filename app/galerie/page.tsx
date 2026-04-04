@@ -39,7 +39,7 @@ export default function GaleriePage() {
           <div className="inline-block mb-3 px-3 py-1 bg-red-600 text-white text-xs font-black uppercase tracking-widest">
             Sticker Kunst
           </div>
-          <h1 className="text-5xl font-black uppercase mb-4">
+          <h1 className="text-3xl sm:text-5xl font-black uppercase mb-4">
             Die <span className="text-red-500">Galerie</span>
           </h1>
           <p className="text-gray-500 max-w-md mx-auto">
@@ -53,7 +53,7 @@ export default function GaleriePage() {
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`px-4 py-2 font-black uppercase text-xs tracking-widest transition-colors ${
+              className={`px-3 py-2 sm:px-4 font-black uppercase text-xs tracking-widest transition-colors ${
                 category === cat
                   ? "bg-red-600 text-white"
                   : "border border-gray-700 text-gray-400 hover:border-white hover:text-white"
@@ -125,7 +125,7 @@ export default function GaleriePage() {
           >
             <button
               onClick={() => setSelected(null)}
-              className="absolute -top-10 right-0 text-white font-black text-xl hover:text-red-500"
+              className="absolute -top-10 right-0 text-white font-black text-sm sm:text-xl hover:text-red-500 py-2"
             >
               ✕ SCHLIESSEN
             </button>

@@ -140,6 +140,13 @@ body {
 .blog-content em { font-style: italic; }
 .blog-content u { text-decoration: underline; }
 
+/* Blog content mobile adjustments */
+@media (max-width: 640px) {
+  .blog-content h2 { font-size: 1.4rem; margin: 1.5rem 0 0.75rem; }
+  .blog-content h3 { font-size: 1.1rem; }
+  .blog-content blockquote { padding-left: 0.75rem; }
+}
+
 /* Tiptap editor prose styles */
 .ProseMirror {
   min-height: 300px;

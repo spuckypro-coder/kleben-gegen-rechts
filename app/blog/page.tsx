@@ -56,7 +56,7 @@ export default function BlogPage() {
           <div className="inline-block mb-3 px-3 py-1 bg-red-600 text-white text-xs font-black uppercase tracking-widest">
             Blog
           </div>
-          <h1 className="text-5xl font-black uppercase">
+          <h1 className="text-3xl sm:text-5xl font-black uppercase">
             News &amp; <span className="text-yellow-400">Analysen</span>
           </h1>
           <p className="text-gray-400 mt-3 max-w-xl">
@@ -97,7 +97,7 @@ export default function BlogPage() {
             </p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {posts.map((post) => (
               <Link href={`/blog/${post.slug}`} key={post.id} className="group">
                 <article className="bg-gray-950 border border-gray-800 hover:border-red-600 transition-colors h-full flex flex-col">

@@ -130,13 +130,13 @@ export default async function BlogPostPage(
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl md:text-5xl font-black uppercase leading-tight mb-6">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black uppercase leading-tight mb-6">
             {post.title}
           </h1>
 
           {/* Excerpt */}
           {post.excerpt && (
-            <p className="text-xl text-gray-300 leading-relaxed mb-8 border-l-4 border-yellow-400 pl-4">
+            <p className="text-base sm:text-xl text-gray-300 leading-relaxed mb-6 md:mb-8 border-l-4 border-yellow-400 pl-3 sm:pl-4">
               {post.excerpt}
             </p>
           )}

@@ -33,7 +33,7 @@ export default async function Home() {
           <div className="inline-block mb-4 px-3 py-1 bg-red-600 text-white text-xs font-black uppercase tracking-widest">
             {c.hero_badge}
           </div>
-          <h1 className="text-6xl md:text-8xl font-black uppercase leading-none mb-6">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black uppercase leading-none mb-6">
             <span className="block text-white">{c.hero_title_1}</span>
             <span className="block text-red-500">{c.hero_title_2}</span>
             <span className="block text-yellow-400">{c.hero_title_3}</span>
@@ -41,7 +41,7 @@ export default async function Home() {
           <p className="text-gray-400 text-lg max-w-xl mx-auto mb-10 font-medium">
             {c.hero_subtitle}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center px-4">
             <Link href="/galerie" className="px-8 py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors" style={{ boxShadow: "4px 4px 0px #ffcc00" }}>
               {c.hero_btn_galerie}
             </Link>
@@ -56,7 +56,7 @@ export default async function Home() {
 
       {/* ÜBER UNS */}
       {(c.about_text || c.about_title) && (
-        <section className="max-w-6xl mx-auto px-4 py-20">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:py-20">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               {c.about_badge && (
@@ -81,7 +81,7 @@ export default async function Home() {
 
       {/* LETZTE BLOGBEITRÄGE */}
       {latestPosts.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 py-20">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:py-20">
           <div className="flex items-center justify-between mb-10">
             <h2 className="text-3xl font-black uppercase">
               <span className="text-red-500">Letzte</span> Beiträge
@@ -90,7 +90,7 @@ export default async function Home() {
               Alle ansehen →
             </Link>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {latestPosts.map((post) => (
               <Link href={`/blog/${post.slug}`} key={post.slug} className="group">
                 <article className="bg-gray-950 border border-gray-800 hover:border-red-600 transition-colors h-full flex flex-col">
@@ -121,7 +121,7 @@ export default async function Home() {
 
       {/* GALLERY PREVIEW */}
       {latestImages.length > 0 ? (
-        <section className="max-w-6xl mx-auto px-4 py-20">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:py-20">
           <div className="flex items-center justify-between mb-10">
             <h2 className="text-3xl font-black uppercase">
               <span className="text-red-500">Aktuelle</span> Werke
@@ -159,7 +159,7 @@ export default async function Home() {
       <section className="bg-red-600 py-5 overflow-hidden">
         <div className="flex whitespace-nowrap" style={{ animation: "marquee 25s linear infinite" }}>
           {Array.from({ length: 8 }).map((_, i) => (
-            <span key={i} className="text-white font-black uppercase text-xl mx-10 shrink-0">
+            <span key={i} className="text-white font-black uppercase text-base sm:text-xl mx-6 sm:mx-10 shrink-0">
               {c.marquee_text} <span className="text-yellow-300 mx-4">✊</span>
             </span>
           ))}
@@ -168,10 +168,10 @@ export default async function Home() {
 
       {/* FEATURED PRODUCT */}
       {featuredProduct && (
-        <section className="max-w-6xl mx-auto px-4 py-20">
+        <section className="max-w-6xl mx-auto px-4 py-10 md:py-20">
           <div className="grid md:grid-cols-2 gap-0 border-2 border-yellow-400" style={{ boxShadow: "8px 8px 0px #ff0033" }}>
             {/* Bild */}
-            <div className="relative aspect-square bg-gray-900">
+            <div className="relative aspect-video md:aspect-square bg-gray-900">
               <Image
                 src={featuredProduct.filename}
                 alt={featuredProduct.name}
@@ -183,17 +183,17 @@ export default async function Home() {
               </div>
             </div>
             {/* Info */}
-            <div className="bg-gray-950 p-10 flex flex-col justify-between">
+            <div className="bg-gray-950 p-6 md:p-10 flex flex-col justify-between">
               <div>
                 <p className="text-gray-500 text-xs font-black uppercase tracking-widest mb-2">{featuredProduct.artist}</p>
-                <h2 className="text-4xl font-black uppercase leading-tight mb-4">{featuredProduct.name}</h2>
+                <h2 className="text-2xl sm:text-4xl font-black uppercase leading-tight mb-4">{featuredProduct.name}</h2>
                 {featuredProduct.description && (
                   <div
                     className="blog-content text-gray-400 text-sm leading-relaxed mb-6 line-clamp-4"
                     dangerouslySetInnerHTML={{ __html: featuredProduct.description }}
                   />
                 )}
-                <div className="text-5xl font-black text-yellow-400 mb-8">
+                <div className="text-3xl sm:text-5xl font-black text-yellow-400 mb-6 md:mb-8">
                   {featuredProduct.price.toFixed(2)} €
                 </div>
               </div>
@@ -219,7 +219,7 @@ export default async function Home() {
       )}
 
       {/* SHOP TEASER */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
+      <section className="max-w-6xl mx-auto px-4 py-10 md:py-20">
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div>
             <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">{c.shop_badge}</div>

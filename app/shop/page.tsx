@@ -38,7 +38,7 @@ export default function ShopPage() {
           <div className="inline-block mb-3 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase tracking-widest">
             Shop
           </div>
-          <h1 className="text-5xl font-black uppercase">
+          <h1 className="text-3xl sm:text-5xl font-black uppercase">
             Sticker <span className="text-red-500">Kaufen</span>
           </h1>
         </div>
@@ -53,7 +53,7 @@ export default function ShopPage() {
             <p className="text-gray-600 mt-2">Produkte können im Admin-Panel hinzugefügt werden.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {products.map((product) => (
               <div key={product.id} className="group sticker-card bg-gray-950 border border-gray-800">
                 <Link href={`/shop/${product.id}`} className="block">
@@ -86,7 +86,7 @@ export default function ShopPage() {
                     <button
                       onClick={() => addToCart(product)}
                       disabled={product.stock === 0}
-                      className="px-3 py-1.5 bg-red-600 text-white font-black uppercase text-xs hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-2 bg-red-600 text-white font-black uppercase text-xs hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       + Korb
                     </button>
