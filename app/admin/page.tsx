@@ -16,6 +16,7 @@ interface GalleryImage {
 interface Product {
   id: string;
   name: string;
+  description?: string;
   filename: string;
   price: number;
   stock: number;
@@ -34,6 +35,7 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false);
   const [content, setContent] = useState<Record<string, string>>({});
   const [contentSaved, setContentSaved] = useState(false);
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,6 +78,23 @@ export default function AdminPage() {
 
   const loadProducts = () =>
     fetch("/api/products").then((r) => r.json()).then(setProducts);
+
+  const saveProduct = async () => {
+    if (!editProduct) return;
+    await fetch(`/api/products/${editProduct.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editProduct),
+    });
+    setEditProduct(null);
+    loadProducts();
+  };
+
+  const deleteProduct = async (id: string) => {
+    if (!confirm("Produkt löschen?")) return;
+    await fetch(`/api/products/${id}`, { method: "DELETE" });
+    loadProducts();
+  };
 
   const handleUpload = async (file: File) => {
     if (!file) return;
@@ -337,27 +356,30 @@ export default function AdminPage() {
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {products.map((prod) => (
-                    <div
-                      key={prod.id}
-                      className="bg-gray-900 border border-gray-800 p-3"
-                    >
-                      <div className="relative aspect-square mb-2 bg-gray-800">
-                        <Image
-                          src={prod.filename}
-                          alt={prod.name}
-                          fill
-                          className="object-cover"
-                        />
+                    <div key={prod.id} className="bg-gray-900 border border-gray-800">
+                      <div className="relative aspect-square bg-gray-800">
+                        <Image src={prod.filename} alt={prod.name} fill className="object-cover" />
+                        {prod.stock === 0 && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <span className="bg-red-600 text-white text-xs font-black px-2 py-1 uppercase">Ausverkauft</span>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-xs font-black uppercase truncate">
-                        {prod.name}
-                      </p>
-                      <p className="text-yellow-400 text-xs font-bold">
-                        {prod.price.toFixed(2)} €
-                      </p>
-                      <p className="text-gray-500 text-xs">
-                        Lager: {prod.stock}
-                      </p>
+                      <div className="p-3">
+                        <p className="text-xs font-black uppercase truncate">{prod.name}</p>
+                        <p className="text-yellow-400 text-xs font-bold">{prod.price.toFixed(2)} €</p>
+                        <p className="text-gray-500 text-xs mb-2">Lager: {prod.stock} | {prod.active ? "Aktiv" : "Inaktiv"}</p>
+                        <div className="flex gap-1">
+                          <button onClick={() => setEditProduct({ ...prod })}
+                            className="flex-1 py-1 text-xs font-black uppercase bg-yellow-400 text-black hover:bg-yellow-300 transition-colors">
+                            Bearbeiten
+                          </button>
+                          <button onClick={() => deleteProduct(prod.id)}
+                            className="flex-1 py-1 text-xs font-black uppercase border border-gray-700 text-gray-500 hover:border-red-600 hover:text-red-500 transition-colors">
+                            Löschen
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -598,6 +620,86 @@ export default function AdminPage() {
             </div>
           )}
       </div>
+
+      {/* Produkt Edit Modal */}
+      {editProduct && (
+        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setEditProduct(null)}>
+          <div className="w-full max-w-lg bg-gray-950 border-2 border-yellow-400 p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}
+            style={{ boxShadow: "6px 6px 0px #ff0033" }}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-black uppercase text-lg">Produkt bearbeiten</h2>
+              <button onClick={() => setEditProduct(null)} className="font-black hover:text-red-500">✕</button>
+            </div>
+
+            <div className="flex gap-4 mb-4">
+              <div className="relative w-24 h-24 shrink-0 bg-gray-800">
+                <Image src={editProduct.filename} alt={editProduct.name} fill className="object-cover" />
+              </div>
+              <div className="flex-1 space-y-3">
+                <div>
+                  <label className="block text-gray-500 text-xs uppercase mb-1">Produktname</label>
+                  <input type="text" value={editProduct.name}
+                    onChange={(e) => setEditProduct({ ...editProduct, name: e.target.value })}
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
+                </div>
+                <div>
+                  <label className="block text-gray-500 text-xs uppercase mb-1">Künstler</label>
+                  <input type="text" value={editProduct.artist}
+                    onChange={(e) => setEditProduct({ ...editProduct, artist: e.target.value })}
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="block text-gray-500 text-xs uppercase mb-1">Beschreibung</label>
+              <textarea value={editProduct.description || ""}
+                onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })}
+                rows={4}
+                className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400"
+                placeholder="Material, Größe, Botschaft, Besonderheiten..." />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="block text-gray-500 text-xs uppercase mb-1">Preis (€)</label>
+                <input type="number" step="0.01" value={editProduct.price}
+                  onChange={(e) => setEditProduct({ ...editProduct, price: parseFloat(e.target.value) || 0 })}
+                  className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
+              </div>
+              <div>
+                <label className="block text-gray-500 text-xs uppercase mb-1">Lagerbestand</label>
+                <input type="number" value={editProduct.stock}
+                  onChange={(e) => setEditProduct({ ...editProduct, stock: parseInt(e.target.value) || 0 })}
+                  className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="flex items-center gap-3 cursor-pointer"
+                onClick={() => setEditProduct({ ...editProduct, active: !editProduct.active })}>
+                <div className={`w-12 h-6 rounded-full transition-colors relative ${editProduct.active ? "bg-green-600" : "bg-gray-700"}`}>
+                  <div className={`absolute top-0 w-6 h-6 bg-white rounded-full transition-transform shadow ${editProduct.active ? "translate-x-6" : "translate-x-0"}`} />
+                </div>
+                <span className="font-black uppercase text-sm">
+                  {editProduct.active ? "Aktiv — im Shop sichtbar" : "Inaktiv — versteckt"}
+                </span>
+              </label>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={saveProduct}
+                className="flex-1 py-3 bg-yellow-400 text-black font-black uppercase tracking-widest hover:bg-yellow-300 transition-colors">
+                Speichern
+              </button>
+              <button onClick={() => setEditProduct(null)}
+                className="flex-1 py-3 border border-gray-700 text-gray-400 font-black uppercase hover:border-white hover:text-white transition-colors">
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
