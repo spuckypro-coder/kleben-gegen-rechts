@@ -69,17 +69,17 @@ export default async function Home() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
                 {c.about_badge && (
-                  <div className="inline-block mb-4 px-3 py-1 bg-cyan-500 text-black text-xs font-black uppercase">
+                  <div className="inline-block mb-4 px-3 py-1 bg-rose-400 text-black text-xs font-black uppercase">
                     {c.about_badge}
                   </div>
                 )}
                 <h2 className="text-4xl font-black uppercase mb-6">
-                  <span className="text-cyan-400">{c.about_title}</span>
+                  <span className="text-rose-300">{c.about_title}</span>
                 </h2>
                 {c.about_text && <p className="text-gray-400 mb-4 leading-relaxed">{c.about_text}</p>}
                 {c.about_text_2 && <p className="text-gray-400 leading-relaxed">{c.about_text_2}</p>}
               </div>
-              <div className="border-l-4 border-cyan-500 pl-8">
+              <div className="border-l-4 border-rose-400 pl-8">
                 <p className="text-2xl font-black uppercase text-white leading-tight">
                   &ldquo;Antifaschismus ist keine Meinung — es ist eine Notwendigkeit.&rdquo;
                 </p>
@@ -251,14 +251,14 @@ export default async function Home() {
         <section className="bg-black border-t border-gray-900">
           <div className="max-w-6xl mx-auto px-4 py-16 text-center">
             <h2 className="text-3xl font-black uppercase mb-4">
-              <span className="text-cyan-400">Kontakt</span>{" "}
+              <span className="text-rose-300">Kontakt</span>{" "}
               <span className="text-white">& Social</span>
             </h2>
             {c.contact_text && <p className="text-gray-400 mb-6 max-w-lg mx-auto">{c.contact_text}</p>}
             <div className="flex gap-4 justify-center flex-wrap">
               {c.contact_instagram && (
                 <a href={`https://instagram.com/${c.contact_instagram.replace("@", "")}`} target="_blank" rel="noopener noreferrer"
-                  className="px-6 py-3 border-2 border-cyan-500 text-cyan-400 font-black uppercase text-sm hover:bg-cyan-500 hover:text-black transition-colors">
+                  className="px-6 py-3 border-2 border-rose-400 text-rose-300 font-black uppercase text-sm hover:bg-rose-400 hover:text-black transition-colors">
                   Instagram: {c.contact_instagram}
                 </a>
               )}

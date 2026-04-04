@@ -35,7 +35,7 @@ export default function ShopPage() {
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-12">
-          <div className="inline-block mb-3 px-3 py-1 bg-cyan-500 text-black text-xs font-black uppercase tracking-widest">
+          <div className="inline-block mb-3 px-3 py-1 bg-rose-400 text-black text-xs font-black uppercase tracking-widest">
             Shop
           </div>
           <h1 className="text-3xl sm:text-5xl font-black uppercase">
@@ -82,7 +82,7 @@ export default function ShopPage() {
                   </Link>
                   <p className="text-gray-500 text-xs mb-1">{product.artist}</p>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-cyan-500 font-black">{product.price.toFixed(2)} €</span>
+                    <span className="text-rose-400 font-black">{product.price.toFixed(2)} €</span>
                     <button
                       onClick={() => addToCart(product)}
                       disabled={product.stock === 0}
