@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getContent } from "@/lib/content";
+import InstagramFeed from "@/components/InstagramFeed";
 
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getContent();
@@ -167,6 +168,11 @@ export default async function Home() {
           </div>
         </section>
       )}
+
+      {/* INSTAGRAM FEED */}
+      <div className="border-t border-gray-900">
+        <InstagramFeed />
+      </div>
 
       {/* SEO TEXT */}
       {c.seo_text_home && (
