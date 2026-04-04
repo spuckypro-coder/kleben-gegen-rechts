@@ -142,9 +142,10 @@ export default function GaleriePage() {
                   {selected.title}
                 </h2>
                 {selected.description && (
-                  <p className="text-gray-400 mt-1 text-sm">
-                    {selected.description}
-                  </p>
+                  <div
+                    className="blog-content text-gray-400 mt-1 text-sm"
+                    dangerouslySetInnerHTML={{ __html: selected.description }}
+                  />
                 )}
                 <span className="inline-block mt-2 text-xs font-bold uppercase text-red-500">
                   #{selected.category}
