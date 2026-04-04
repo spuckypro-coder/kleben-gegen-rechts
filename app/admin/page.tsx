@@ -92,6 +92,7 @@ export default function AdminPage() {
     title: "",
     content: "",
     excerpt: "",
+    coverImage: "",
     category: "antifaschismus",
     sources: "",
     published: false,
