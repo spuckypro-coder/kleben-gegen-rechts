@@ -113,6 +113,8 @@ export default function AdminPage() {
   const [imgTitle, setImgTitle] = useState("");
   const [imgDesc, setImgDesc] = useState("");
   const [imgCat, setImgCat] = useState("allgemein");
+  const [galleryFile, setGalleryFile] = useState<File | null>(null);
+  const [galleryPreview, setGalleryPreview] = useState("");
 
   // Product form
   const [prodName, setProdName] = useState("");
@@ -309,6 +311,32 @@ export default function AdminPage() {
     loadProducts();
   };
 
+  const selectGalleryFile = (file: File) => {
+    setGalleryFile(file);
+    setGalleryPreview(URL.createObjectURL(file));
+    if (!imgTitle) setImgTitle(file.name.replace(/\.[^.]+$/, ""));
+  };
+
+  const submitGallery = async () => {
+    if (!galleryFile || !imgTitle.trim() || !imgDesc || imgDesc === "<p></p>") return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", galleryFile);
+    fd.append("type", "gallery");
+    fd.append("title", imgTitle.trim());
+    fd.append("description", imgDesc);
+    fd.append("category", imgCat);
+    await fetch("/api/upload", { method: "POST", body: fd });
+    setUploading(false);
+    setGalleryFile(null);
+    setGalleryPreview("");
+    setImgTitle("");
+    setImgDesc("");
+    setImgCat("allgemein");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    loadImages();
+  };
+
   const handleUpload = async (file: File) => {
     if (!file) return;
     setUploading(true);
@@ -316,15 +344,10 @@ export default function AdminPage() {
     fd.append("file", file);
 
     if (tab === "galerie") {
-      fd.append("type", "gallery");
-      fd.append("title", imgTitle || file.name.replace(/\.[^.]+$/, ""));
-      fd.append("description", imgDesc);
-      fd.append("category", imgCat);
-      await fetch("/api/upload", { method: "POST", body: fd });
+      // Gallery: just select file, don't upload yet
       setUploading(false);
-      setImgTitle(""); setImgDesc("");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      loadImages();
+      selectGalleryFile(file);
+      return;
     } else {
       // For products: only upload image, get URL back, don't create DB entry yet
       const res = await fetch("/api/upload-blog-image", { method: "POST", body: fd });
@@ -427,61 +450,81 @@ export default function AdminPage() {
               </h2>
 
               {/* Drop Zone */}
-              <div
-                className={`drop-zone p-8 text-center mb-4 cursor-pointer ${dragOver ? "drag-over" : ""}`}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setDragOver(false);
-                  const file = e.dataTransfer.files[0];
-                  if (file) handleUpload(file);
-                }}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div className="text-4xl mb-2">📁</div>
-                <p className="text-gray-500 text-sm font-bold uppercase">
-                  Datei hier ablegen
-                </p>
-                <p className="text-gray-600 text-xs mt-1">oder klicken</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
+              {tab === "galerie" && galleryPreview ? (
+                <div className="relative aspect-square mb-4 bg-gray-800 border border-gray-700">
+                  <Image src={galleryPreview} alt="Vorschau" fill className="object-cover" />
+                  <button
+                    onClick={() => { setGalleryFile(null); setGalleryPreview(""); setImgTitle(""); setImgDesc(""); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                    className="absolute top-1 right-1 bg-black/70 text-white font-black text-xs px-2 py-1 hover:text-red-500"
+                  >✕</button>
+                </div>
+              ) : (
+                <div
+                  className={`drop-zone p-8 text-center mb-4 cursor-pointer ${dragOver ? "drag-over" : ""}`}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDragOver(false);
+                    const file = e.dataTransfer.files[0];
                     if (file) handleUpload(file);
                   }}
-                />
-              </div>
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <div className="text-4xl mb-2">📁</div>
+                  <p className="text-gray-500 text-sm font-bold uppercase">
+                    Datei hier ablegen
+                  </p>
+                  <p className="text-gray-600 text-xs mt-1">oder klicken</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleUpload(file);
+                    }}
+                  />
+                </div>
+              )}
 
               {tab === "galerie" ? (
                 <>
                   <input
                     type="text"
-                    placeholder="Titel"
+                    placeholder="Titel *"
                     value={imgTitle}
                     onChange={(e) => setImgTitle(e.target.value)}
-                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600"
+                    className={`w-full bg-gray-900 border text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600 ${!imgTitle.trim() && galleryFile ? "border-red-600" : "border-gray-700"}`}
                   />
-                  <input
-                    type="text"
-                    placeholder="Beschreibung (optional)"
-                    value={imgDesc}
-                    onChange={(e) => setImgDesc(e.target.value)}
-                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600"
-                  />
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Beschreibung *</label>
+                    <BlogEditor content={imgDesc} onChange={setImgDesc} />
+                    {(!imgDesc || imgDesc === "<p></p>") && galleryFile && (
+                      <p className="text-red-500 text-xs mt-1">Beschreibung ist ein Pflichtfeld</p>
+                    )}
+                  </div>
                   <select
                     value={imgCat}
                     onChange={(e) => setImgCat(e.target.value)}
-                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600"
+                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-4 text-sm focus:outline-none focus:border-red-600"
                   >
                     <option value="allgemein">Allgemein</option>
                     <option value="politik">Politik</option>
                     <option value="street">Street</option>
                     <option value="series">Series</option>
                   </select>
+                  <button
+                    onClick={submitGallery}
+                    disabled={!galleryFile || !imgTitle.trim() || !imgDesc || imgDesc === "<p></p>" || uploading}
+                    className="w-full py-3 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {uploading ? "Wird hochgeladen..." : "Senden"}
+                  </button>
+                  {!galleryFile && (
+                    <p className="text-gray-600 text-xs text-center mt-2">↑ Zuerst Bild auswählen</p>
+                  )}
                 </>
               ) : (
                 <>
