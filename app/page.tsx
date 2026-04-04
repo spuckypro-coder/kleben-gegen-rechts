@@ -51,6 +51,31 @@ export default async function Home() {
         <div className="absolute top-0 right-0 w-2 h-full bg-yellow-400" />
       </section>
 
+      {/* ÜBER UNS */}
+      {(c.about_text || c.about_title) && (
+        <section className="max-w-6xl mx-auto px-4 py-20">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              {c.about_badge && (
+                <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">
+                  {c.about_badge}
+                </div>
+              )}
+              <h2 className="text-4xl font-black uppercase mb-6">
+                {c.about_title}
+              </h2>
+              {c.about_text && <p className="text-gray-400 mb-4 leading-relaxed">{c.about_text}</p>}
+              {c.about_text_2 && <p className="text-gray-400 leading-relaxed">{c.about_text_2}</p>}
+            </div>
+            <div className="border-l-4 border-red-600 pl-8">
+              <p className="text-2xl font-black uppercase text-white leading-tight">
+                &ldquo;Antifaschismus ist keine Meinung — es ist eine Notwendigkeit.&rdquo;
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* GALLERY PREVIEW */}
       {latestImages.length > 0 ? (
         <section className="max-w-6xl mx-auto px-4 py-20">
@@ -97,31 +122,6 @@ export default async function Home() {
           ))}
         </div>
       </section>
-
-      {/* ÜBER UNS */}
-      {(c.about_text || c.about_title) && (
-        <section className="max-w-6xl mx-auto px-4 py-20">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              {c.about_badge && (
-                <div className="inline-block mb-4 px-3 py-1 bg-yellow-400 text-black text-xs font-black uppercase">
-                  {c.about_badge}
-                </div>
-              )}
-              <h2 className="text-4xl font-black uppercase mb-6">
-                {c.about_title}
-              </h2>
-              {c.about_text && <p className="text-gray-400 mb-4 leading-relaxed">{c.about_text}</p>}
-              {c.about_text_2 && <p className="text-gray-400 leading-relaxed">{c.about_text_2}</p>}
-            </div>
-            <div className="border-l-4 border-red-600 pl-8">
-              <p className="text-2xl font-black uppercase text-white leading-tight">
-                &ldquo;Antifaschismus ist keine Meinung — es ist eine Notwendigkeit.&rdquo;
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* SHOP TEASER */}
       <section className="max-w-6xl mx-auto px-4 py-20">
