@@ -16,8 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const [latestImages, c] = await Promise.all([
+  const [latestImages, latestPosts, c] = await Promise.all([
     prisma.galleryImage.findMany({ take: 8, orderBy: { createdAt: "desc" } }),
+    prisma.blogPost.findMany({ where: { published: true }, take: 3, orderBy: { createdAt: "desc" }, select: { title: true, slug: true, excerpt: true, coverImage: true, category: true, createdAt: true } }),
     getContent(),
   ]);
 
@@ -72,6 +73,46 @@ export default async function Home() {
                 &ldquo;Antifaschismus ist keine Meinung — es ist eine Notwendigkeit.&rdquo;
               </p>
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* LETZTE BLOGBEITRÄGE */}
+      {latestPosts.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 py-20">
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-3xl font-black uppercase">
+              <span className="text-red-500">Letzte</span> Beiträge
+            </h2>
+            <Link href="/blog" className="text-yellow-400 font-bold uppercase text-sm tracking-widest hover:underline">
+              Alle ansehen →
+            </Link>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {latestPosts.map((post) => (
+              <Link href={`/blog/${post.slug}`} key={post.slug} className="group">
+                <article className="bg-gray-950 border border-gray-800 hover:border-red-600 transition-colors h-full flex flex-col">
+                  {post.coverImage ? (
+                    <div className="relative aspect-video overflow-hidden bg-gray-900">
+                      <Image src={post.coverImage} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-gray-900 flex items-center justify-center border-b border-gray-800">
+                      <span className="text-4xl">✊</span>
+                    </div>
+                  )}
+                  <div className="p-5 flex flex-col flex-1">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="px-2 py-0.5 bg-red-600 text-white text-xs font-black uppercase">{post.category}</span>
+                      <span className="text-gray-600 text-xs">{new Date(post.createdAt).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                    </div>
+                    <h3 className="font-black uppercase text-sm leading-tight mb-2 group-hover:text-red-500 transition-colors flex-1">{post.title}</h3>
+                    {post.excerpt && <p className="text-gray-500 text-xs leading-relaxed line-clamp-2">{post.excerpt}</p>}
+                    <div className="mt-3 text-red-500 text-xs font-black uppercase tracking-widest">Weiterlesen →</div>
+                  </div>
+                </article>
+              </Link>
+            ))}
           </div>
         </section>
       )}
