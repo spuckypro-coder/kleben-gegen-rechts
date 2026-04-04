@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
+import { getAllowedTabs, hasPermission, ROLE_OPTIONS, type Permission } from "@/lib/roles";
 
 const BlogEditor = dynamic(() => import("@/components/BlogEditor"), { ssr: false });
 
@@ -54,11 +55,21 @@ interface BlogDraft {
   published: boolean;
 }
 
-type Tab = "galerie" | "shop" | "blog" | "texte";
+type Tab = Permission;
+
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+}
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const userRole = (session?.user as { role?: string })?.role;
+  const allowedTabs = getAllowedTabs(userRole);
   const [tab, setTab] = useState<Tab>("galerie");
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -85,6 +96,14 @@ export default function AdminPage() {
   const [blogSaving, setBlogSaving] = useState(false);
   const [blogMode, setBlogMode] = useState<"list" | "new" | "edit">("list");
 
+  // User management
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [editUser, setEditUser] = useState<AdminUser | null>(null);
+  const [newUser, setNewUser] = useState({ name: "", email: "", password: "", role: "blog" });
+  const [userSaving, setUserSaving] = useState(false);
+  const [userError, setUserError] = useState("");
+  const [showNewUserForm, setShowNewUserForm] = useState(false);
+
   // Gallery form
   const [imgTitle, setImgTitle] = useState("");
   const [imgDesc, setImgDesc] = useState("");
@@ -105,12 +124,57 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (session) {
+      const tabs = getAllowedTabs((session.user as { role?: string })?.role);
+      if (tabs.length > 0) setTab(tabs[0]);
       loadImages();
       loadProducts();
       loadBlogPosts();
       fetch("/api/content").then((r) => r.json()).then(setContent);
+      if ((session.user as { role?: string })?.role === "admin") loadUsers();
     }
   }, [session]);
+
+  const loadUsers = () =>
+    fetch("/api/users").then((r) => r.json()).then((data) => setUsers(Array.isArray(data) ? data : []));
+
+  const createUser = async () => {
+    setUserError("");
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      setUserError("Name, E-Mail und Passwort sind Pflichtfelder.");
+      return;
+    }
+    setUserSaving(true);
+    const res = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newUser),
+    });
+    const data = await res.json();
+    setUserSaving(false);
+    if (data.error) { setUserError(data.error); return; }
+    setNewUser({ name: "", email: "", password: "", role: "blog" });
+    setShowNewUserForm(false);
+    loadUsers();
+  };
+
+  const saveUser = async () => {
+    if (!editUser) return;
+    setUserSaving(true);
+    await fetch(`/api/users/${editUser.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editUser),
+    });
+    setUserSaving(false);
+    setEditUser(null);
+    loadUsers();
+  };
+
+  const deleteUser = async (id: string) => {
+    if (!confirm("Benutzer löschen?")) return;
+    await fetch(`/api/users/${id}`, { method: "DELETE" });
+    loadUsers();
+  };
 
   const loadBlogPosts = () =>
     fetch("/api/blog?all=1").then((r) => r.json()).then((data) => {
@@ -318,7 +382,7 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-gray-800 flex-wrap">
-          {(["galerie", "shop", "blog", "texte"] as Tab[]).map((t) => (
+          {allowedTabs.map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -328,7 +392,7 @@ export default function AdminPage() {
                   : "border-transparent text-gray-500 hover:text-white"
               }`}
             >
-              {t}
+              {t === "benutzer" ? "👥 Benutzer" : t}
             </button>
           ))}
         </div>
@@ -723,6 +787,152 @@ export default function AdminPage() {
                   </div>
                 </>
               )}
+            </div>
+          )}
+
+          {/* BENUTZER TAB */}
+          {tab === "benutzer" && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-black uppercase text-sm tracking-widest text-gray-400">
+                  Benutzer verwalten ({users.length})
+                </h2>
+                <button
+                  onClick={() => { setShowNewUserForm(!showNewUserForm); setUserError(""); }}
+                  className="px-6 py-2 bg-red-600 text-white font-black uppercase text-sm tracking-widest hover:bg-red-500 transition-colors"
+                >
+                  {showNewUserForm ? "Abbrechen" : "+ Neuer Benutzer"}
+                </button>
+              </div>
+
+              {/* Neuer Benutzer Formular */}
+              {showNewUserForm && (
+                <div className="bg-gray-950 border border-gray-800 p-6 mb-6">
+                  <h3 className="font-black uppercase text-xs tracking-widest text-red-500 mb-4">Neuen Benutzer erstellen</h3>
+                  {userError && (
+                    <div className="mb-4 px-4 py-2 bg-red-900/50 border border-red-600 text-red-400 text-sm font-bold">
+                      {userError}
+                    </div>
+                  )}
+                  <div className="grid md:grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Name *</label>
+                      <input type="text" value={newUser.name}
+                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                        placeholder="Vollständiger Name"
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">E-Mail *</label>
+                      <input type="email" value={newUser.email}
+                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                        placeholder="email@beispiel.de"
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Passwort *</label>
+                      <input type="password" value={newUser.password}
+                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                        placeholder="Sicheres Passwort"
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600" />
+                    </div>
+                    <div>
+                      <label className="block text-gray-500 text-xs uppercase mb-1">Rolle / Berechtigung</label>
+                      <select value={newUser.role}
+                        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                        className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600">
+                        {ROLE_OPTIONS.map((r) => (
+                          <option key={r.value} value={r.value}>{r.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <button onClick={createUser} disabled={userSaving}
+                    className="w-full py-3 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-50">
+                    {userSaving ? "Wird erstellt..." : "Benutzer erstellen"}
+                  </button>
+                </div>
+              )}
+
+              {/* Benutzerliste */}
+              <div className="space-y-3">
+                {users.map((u) => (
+                  <div key={u.id} className="bg-gray-950 border border-gray-800 p-4">
+                    {editUser?.id === u.id ? (
+                      /* Edit-Formular */
+                      <div>
+                        <div className="grid md:grid-cols-2 gap-3 mb-3">
+                          <div>
+                            <label className="block text-gray-500 text-xs uppercase mb-1">Name</label>
+                            <input type="text" value={editUser.name}
+                              onChange={(e) => setEditUser({ ...editUser, name: e.target.value })}
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
+                          </div>
+                          <div>
+                            <label className="block text-gray-500 text-xs uppercase mb-1">E-Mail</label>
+                            <input type="email" value={editUser.email}
+                              onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
+                          </div>
+                          <div>
+                            <label className="block text-gray-500 text-xs uppercase mb-1">Neues Passwort (leer = unverändert)</label>
+                            <input type="password" placeholder="Neues Passwort..."
+                              onChange={(e) => setEditUser({ ...editUser, role: editUser.role })}
+                              onBlur={(e) => { if (e.target.value) setEditUser({ ...editUser, ...{ password: e.target.value } as Partial<AdminUser> }); }}
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400" />
+                          </div>
+                          <div>
+                            <label className="block text-gray-500 text-xs uppercase mb-1">Rolle</label>
+                            <select value={editUser.role}
+                              onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
+                              className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400">
+                              {ROLE_OPTIONS.map((r) => (
+                                <option key={r.value} value={r.value}>{r.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button onClick={saveUser} disabled={userSaving}
+                            className="flex-1 py-2 bg-yellow-400 text-black font-black uppercase text-sm hover:bg-yellow-300 transition-colors disabled:opacity-50">
+                            {userSaving ? "Speichern..." : "Speichern"}
+                          </button>
+                          <button onClick={() => setEditUser(null)}
+                            className="flex-1 py-2 border border-gray-700 text-gray-400 font-black uppercase text-sm hover:text-white hover:border-white transition-colors">
+                            Abbrechen
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Anzeige */
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-black uppercase">{u.name}</span>
+                            {u.role === "admin" && (
+                              <span className="px-2 py-0.5 bg-red-600 text-white text-xs font-black uppercase">Admin</span>
+                            )}
+                          </div>
+                          <p className="text-gray-500 text-sm">{u.email}</p>
+                          <p className="text-gray-600 text-xs mt-1 uppercase">
+                            Berechtigung: {ROLE_OPTIONS.find((r) => r.value === u.role)?.label || u.role}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button onClick={() => setEditUser({ ...u })}
+                            className="px-4 py-2 bg-yellow-400 text-black font-black uppercase text-xs hover:bg-yellow-300 transition-colors">
+                            Bearbeiten
+                          </button>
+                          <button onClick={() => deleteUser(u.id)}
+                            className="px-4 py-2 border border-gray-700 text-gray-500 font-black uppercase text-xs hover:border-red-600 hover:text-red-500 transition-colors">
+                            Löschen
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
