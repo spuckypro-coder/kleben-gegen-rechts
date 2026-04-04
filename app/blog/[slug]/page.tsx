@@ -11,7 +11,7 @@ const categoryLabel: Record<string, string> = {
   news: "Aktuelle News",
 };
 
-const SITE_URL = "https://klebengegenrechts.de";
+const SITE_URL = "https://www.klebengegenrechts.de";
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }

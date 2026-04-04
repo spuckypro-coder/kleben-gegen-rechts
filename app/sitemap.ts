@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-const SITE_URL = "https://klebengegenrechts.de";
+const SITE_URL = "https://www.klebengegenrechts.de";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let blogEntries: MetadataRoute.Sitemap = [];
