@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #ff0033;
+  --accent2: #ffcc00;
+  --gray: #1a1a1a;
+  --gray2: #2a2a2a;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Arial Black', Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+}
+
+/* Comic-style thick borders */
+.comic-border {
+  border: 3px solid #fff;
+  box-shadow: 4px 4px 0px #ff0033;
+}
+
+.comic-border-yellow {
+  border: 3px solid #fff;
+  box-shadow: 4px 4px 0px #ffcc00;
+}
+
+/* Halftone effect overlay */
+.halftone {
+  position: relative;
+}
+
+.halftone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 8px 8px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Comic text effect */
+.comic-title {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  -webkit-text-stroke: 2px #fff;
+  paint-order: stroke fill;
+}
+
+/* Sticker hover */
+.sticker-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sticker-card:hover {
+  transform: rotate(-1deg) scale(1.04);
+  box-shadow: 6px 6px 0px #ff0033;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #ff0033;
+}
+
+/* Upload drop zone */
+.drop-zone {
+  border: 3px dashed #444;
+  transition: border-color 0.2s, background 0.2s;
+}
+.drop-zone.drag-over {
+  border-color: #ff0033;
+  background: rgba(255, 0, 51, 0.08);
+}
