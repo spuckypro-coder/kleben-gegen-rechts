@@ -84,6 +84,10 @@ export default function CartSidebar() {
             >
               Mit Stripe bezahlen →
             </button>
+            <p className="text-gray-600 text-xs text-center mt-3 leading-relaxed">
+              Alle Einnahmen dienen ausschließlich der Refinanzierung der Website
+              und Neuproduktion von Stickern. Nicht gewinnorientiert.
+            </p>
           </div>
         )}
       </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getContent } from "@/lib/content";
 import InstagramFeed from "@/components/InstagramFeed";
+import ShopDisclaimer from "@/components/ShopDisclaimer";
 
 export const dynamic = "force-dynamic";
 
@@ -211,6 +212,7 @@ export default async function Home() {
                   Zum Shop
                 </Link>
               </div>
+              <ShopDisclaimer />
             </div>
           </div>
         </section>

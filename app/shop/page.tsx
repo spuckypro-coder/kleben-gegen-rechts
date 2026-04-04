@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/components/CartProvider";
+import ShopDisclaimer from "@/components/ShopDisclaimer";
 
 interface Product {
   id: string;
@@ -95,6 +96,9 @@ export default function ShopPage() {
             ))}
           </div>
         )}
+        <div className="mt-12">
+          <ShopDisclaimer />
+        </div>
       </div>
     </div>
   );

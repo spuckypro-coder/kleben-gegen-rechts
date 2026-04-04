@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCart } from "@/components/CartProvider";
+import ShopDisclaimer from "@/components/ShopDisclaimer";
 
 interface ProductImage {
   id: string;
@@ -232,6 +233,9 @@ export default function ProductDetailPage() {
               </Link>
             )}
           </div>
+        </div>
+        <div className="mt-10">
+          <ShopDisclaimer />
         </div>
       </div>
     </div>
