@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getContent } from "@/lib/content";
 import InstagramFeed from "@/components/InstagramFeed";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getContent();
   return {
