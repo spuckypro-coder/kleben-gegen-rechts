@@ -50,6 +50,7 @@ interface BlogDraft {
   title: string;
   content: string;
   excerpt: string;
+  coverImage: string;
   category: string;
   sources: string;
   published: boolean;
@@ -213,7 +214,7 @@ export default function AdminPage() {
     setBlogSaving(false);
     setBlogMode("list");
     setEditingPost(null);
-    setBlogDraft({ title: "", content: "", excerpt: "", category: "antifaschismus", sources: "", published: false });
+    setBlogDraft({ title: "", content: "", excerpt: "", coverImage: "", category: "antifaschismus", sources: "", published: false });
     loadBlogPosts();
   };
 
@@ -230,6 +231,7 @@ export default function AdminPage() {
         title: data.title || "",
         content: data.content || "",
         excerpt: data.excerpt || "",
+        coverImage: data.coverImage || "",
         category: data.category || "antifaschismus",
         sources: data.sources || "",
         published: data.published ?? false,
@@ -654,7 +656,7 @@ export default function AdminPage() {
                       Blog Beiträge ({blogPosts.length})
                     </h2>
                     <button
-                      onClick={() => { setBlogMode("new"); setBlogDraft({ title: "", content: "", excerpt: "", category: "antifaschismus", sources: "", published: false }); }}
+                      onClick={() => { setBlogMode("new"); setBlogDraft({ title: "", content: "", excerpt: "", coverImage: "", category: "antifaschismus", sources: "", published: false }); }}
                       className="px-6 py-2 bg-red-600 text-white font-black uppercase text-sm tracking-widest hover:bg-red-500 transition-colors"
                     >
                       + Neuer Beitrag
