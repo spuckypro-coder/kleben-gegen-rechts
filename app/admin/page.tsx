@@ -340,13 +340,10 @@ export default function AdminPage() {
                     onChange={(e) => setProdName(e.target.value)}
                     className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600"
                   />
-                  <input
-                    type="text"
-                    placeholder="Beschreibung"
-                    value={prodDesc}
-                    onChange={(e) => setProdDesc(e.target.value)}
-                    className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600"
-                  />
+                  <div className="mb-3">
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Beschreibung</label>
+                    <BlogEditor content={prodDesc} onChange={setProdDesc} />
+                  </div>
                   <input
                     type="number"
                     placeholder="Preis (€)"
@@ -899,11 +896,10 @@ export default function AdminPage() {
 
             <div className="mb-3">
               <label className="block text-gray-500 text-xs uppercase mb-1">Beschreibung</label>
-              <textarea value={editProduct.description || ""}
-                onChange={(e) => setEditProduct({ ...editProduct, description: e.target.value })}
-                rows={4}
-                className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-yellow-400"
-                placeholder="Material, Größe, Botschaft, Besonderheiten..." />
+              <BlogEditor
+                content={editProduct.description || ""}
+                onChange={(html) => setEditProduct({ ...editProduct, description: html })}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-3 mb-4">
