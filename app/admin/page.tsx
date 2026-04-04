@@ -32,6 +32,7 @@ interface Product {
   stock: number;
   artist: string;
   active: boolean;
+  featured: boolean;
   images: ProductImage[];
 }
 
@@ -629,7 +630,7 @@ export default function AdminPage() {
                         <p className="text-yellow-400 text-xs font-bold">{prod.price.toFixed(2)} €</p>
                         <p className="text-gray-500 text-xs mb-2">Lager: {prod.stock} | {prod.active ? "Aktiv" : "Inaktiv"}</p>
                         <div className="flex gap-1">
-                          <button onClick={() => setEditProduct({ ...prod, images: prod.images || [] })}
+                          <button onClick={() => setEditProduct({ ...prod, images: prod.images || [], featured: prod.featured || false })}
                             className="flex-1 py-1 text-xs font-black uppercase bg-yellow-400 text-black hover:bg-yellow-300 transition-colors">
                             Bearbeiten
                           </button>
@@ -1331,6 +1332,19 @@ export default function AdminPage() {
                   {editProduct.active ? "Aktiv — im Shop sichtbar" : "Inaktiv — versteckt"}
                 </span>
               </label>
+            </div>
+
+            <div className="mb-6">
+              <label className="flex items-center gap-3 cursor-pointer"
+                onClick={() => setEditProduct({ ...editProduct, featured: !editProduct.featured })}>
+                <div className={`w-12 h-6 rounded-full transition-colors relative ${editProduct.featured ? "bg-yellow-400" : "bg-gray-700"}`}>
+                  <div className={`absolute top-0 w-6 h-6 bg-white rounded-full transition-transform shadow ${editProduct.featured ? "translate-x-6" : "translate-x-0"}`} />
+                </div>
+                <span className="font-black uppercase text-sm">
+                  {editProduct.featured ? "★ Highlighted — auf Startseite" : "☆ Nicht hervorgehoben"}
+                </span>
+              </label>
+              <p className="text-gray-600 text-xs mt-1 ml-15">Nur ein Produkt sollte highlighted sein.</p>
             </div>
 
             <div className="flex gap-3">

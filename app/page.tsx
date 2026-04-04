@@ -16,9 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const [latestImages, latestPosts, c] = await Promise.all([
+  const [latestImages, latestPosts, featuredProduct, c] = await Promise.all([
     prisma.galleryImage.findMany({ take: 8, orderBy: { createdAt: "desc" } }),
     prisma.blogPost.findMany({ where: { published: true }, take: 3, orderBy: { createdAt: "desc" }, select: { title: true, slug: true, excerpt: true, coverImage: true, category: true, createdAt: true } }),
+    prisma.product.findFirst({ where: { featured: true, active: true }, include: { images: { orderBy: { position: "asc" }, take: 1 } } }),
     getContent(),
   ]);
 
@@ -163,6 +164,57 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {/* FEATURED PRODUCT */}
+      {featuredProduct && (
+        <section className="max-w-6xl mx-auto px-4 py-20">
+          <div className="grid md:grid-cols-2 gap-0 border-2 border-yellow-400" style={{ boxShadow: "8px 8px 0px #ff0033" }}>
+            {/* Bild */}
+            <div className="relative aspect-square bg-gray-900">
+              <Image
+                src={featuredProduct.filename}
+                alt={featuredProduct.name}
+                fill
+                className="object-cover"
+              />
+              <div className="absolute top-0 left-0 px-4 py-2 bg-yellow-400 text-black font-black uppercase text-xs tracking-widest">
+                ★ Highlight
+              </div>
+            </div>
+            {/* Info */}
+            <div className="bg-gray-950 p-10 flex flex-col justify-between">
+              <div>
+                <p className="text-gray-500 text-xs font-black uppercase tracking-widest mb-2">{featuredProduct.artist}</p>
+                <h2 className="text-4xl font-black uppercase leading-tight mb-4">{featuredProduct.name}</h2>
+                {featuredProduct.description && (
+                  <div
+                    className="blog-content text-gray-400 text-sm leading-relaxed mb-6 line-clamp-4"
+                    dangerouslySetInnerHTML={{ __html: featuredProduct.description }}
+                  />
+                )}
+                <div className="text-5xl font-black text-yellow-400 mb-8">
+                  {featuredProduct.price.toFixed(2)} €
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <Link
+                  href={`/shop/${featuredProduct.id}`}
+                  className="flex-1 text-center py-4 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors"
+                  style={{ boxShadow: "4px 4px 0px #ffcc00" }}
+                >
+                  Jetzt kaufen →
+                </Link>
+                <Link
+                  href="/shop"
+                  className="px-6 py-4 border-2 border-gray-700 text-gray-400 font-black uppercase text-sm hover:border-white hover:text-white transition-colors"
+                >
+                  Zum Shop
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SHOP TEASER */}
       <section className="max-w-6xl mx-auto px-4 py-20">

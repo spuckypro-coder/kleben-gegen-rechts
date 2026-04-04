@@ -34,6 +34,7 @@ model Product {
   stock       Int            @default(0)
   artist      String         @default("Kleben Gegen Rechts")
   active      Boolean        @default(true)
+  featured    Boolean        @default(false)
   createdAt   DateTime       @default(now())
   orderItems  OrderItem[]
   images      ProductImage[]

@@ -46,6 +46,7 @@ export async function PATCH(
       stock: parseInt(body.stock) || 0,
       artist: body.artist,
       active: body.active,
+      featured: body.featured ?? false,
     },
   });
 
