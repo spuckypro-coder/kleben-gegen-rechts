@@ -87,6 +87,8 @@ export default function AdminPage() {
   const [prodPrice, setProdPrice] = useState("");
   const [prodStock, setProdStock] = useState("");
   const [prodArtist, setProdArtist] = useState("Kleben Gegen Rechts");
+  const [prodImageUrl, setProdImageUrl] = useState("");
+  const [prodCreating, setProdCreating] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -188,28 +190,50 @@ export default function AdminPage() {
     setUploading(true);
     const fd = new FormData();
     fd.append("file", file);
-    fd.append("type", tab === "galerie" ? "gallery" : "product");
 
     if (tab === "galerie") {
+      fd.append("type", "gallery");
       fd.append("title", imgTitle || file.name.replace(/\.[^.]+$/, ""));
       fd.append("description", imgDesc);
       fd.append("category", imgCat);
+      await fetch("/api/upload", { method: "POST", body: fd });
+      setUploading(false);
+      setImgTitle(""); setImgDesc("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      loadImages();
     } else {
-      fd.append("title", prodName || file.name.replace(/\.[^.]+$/, ""));
-      fd.append("description", prodDesc);
-      fd.append("price", prodPrice || "0");
-      fd.append("stock", prodStock || "0");
-      fd.append("artist", prodArtist);
+      // For products: only upload image, get URL back, don't create DB entry yet
+      const res = await fetch("/api/upload-blog-image", { method: "POST", body: fd });
+      const data = await res.json();
+      setUploading(false);
+      if (data.url) {
+        setProdImageUrl(data.url);
+        if (!prodName) setProdName(file.name.replace(/\.[^.]+$/, ""));
+      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
+  };
 
-    await fetch("/api/upload", { method: "POST", body: fd });
-
-    setUploading(false);
-    setImgTitle(""); setImgDesc("");
+  const createProduct = async () => {
+    if (!prodImageUrl || !prodName.trim()) return;
+    setProdCreating(true);
+    await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: prodName,
+        description: prodDesc,
+        price: prodPrice,
+        stock: prodStock,
+        artist: prodArtist,
+        filename: prodImageUrl,
+      }),
+    });
+    setProdCreating(false);
     setProdName(""); setProdDesc(""); setProdPrice(""); setProdStock("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    if (tab === "galerie") loadImages();
-    else loadProducts();
+    setProdArtist("Kleben Gegen Rechts");
+    setProdImageUrl("");
+    loadProducts();
   };
 
   const deleteImage = async (id: string) => {
@@ -271,7 +295,11 @@ export default function AdminPage() {
           <div className="md:col-span-1">
             <div className="bg-gray-950 border border-gray-800 p-6">
               <h2 className="font-black uppercase mb-4 text-sm tracking-widest text-gray-400">
-                {tab === "galerie" ? "Bild hochladen" : "Produkt hinzufügen"}
+                {tab === "galerie"
+                  ? "Bild hochladen"
+                  : prodImageUrl
+                  ? "Details eingeben"
+                  : "Produktbild hochladen"}
               </h2>
 
               {/* Drop Zone */}
@@ -333,9 +361,26 @@ export default function AdminPage() {
                 </>
               ) : (
                 <>
+                  {/* Bild-Vorschau nach Upload */}
+                  {prodImageUrl && (
+                    <div className="relative aspect-square mb-3 bg-gray-800 border border-gray-700">
+                      <Image src={prodImageUrl} alt="Vorschau" fill className="object-cover" />
+                      <button
+                        onClick={() => setProdImageUrl("")}
+                        className="absolute top-1 right-1 bg-black/70 text-white font-black text-xs px-2 py-1 hover:text-red-500"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                  {!prodImageUrl && (
+                    <p className="text-gray-600 text-xs mb-3 text-center">
+                      ↑ Zuerst Bild hochladen, dann Details ausfüllen
+                    </p>
+                  )}
                   <input
                     type="text"
-                    placeholder="Produktname"
+                    placeholder="Produktname *"
                     value={prodName}
                     onChange={(e) => setProdName(e.target.value)}
                     className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600"
@@ -366,12 +411,19 @@ export default function AdminPage() {
                     onChange={(e) => setProdArtist(e.target.value)}
                     className="w-full bg-gray-900 border border-gray-700 text-white px-3 py-2 mb-3 text-sm focus:outline-none focus:border-red-600"
                   />
+                  <button
+                    onClick={createProduct}
+                    disabled={!prodImageUrl || !prodName.trim() || prodCreating}
+                    className="w-full py-3 bg-red-600 text-white font-black uppercase tracking-widest hover:bg-red-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {prodCreating ? "Wird erstellt..." : "Produkt erstellen"}
+                  </button>
                 </>
               )}
 
               {uploading && (
                 <div className="text-center py-3 text-yellow-400 font-black uppercase text-sm">
-                  Hochladen...
+                  Bild wird hochgeladen...
                 </div>
               )}
             </div>
