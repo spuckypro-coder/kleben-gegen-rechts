@@ -6,6 +6,10 @@ import SessionProvider from "@/components/SessionProvider";
 export const metadata: Metadata = {
   title: "Kleben Gegen Rechts",
   description: "Sticker Kunst & Aktivismus",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
