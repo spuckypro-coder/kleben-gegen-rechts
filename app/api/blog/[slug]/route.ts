@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendNewsletterBlogPost } from "@/lib/resend";
 
 export async function GET(
   request: NextRequest,
@@ -32,6 +33,14 @@ export async function PATCH(
   const { slug } = await params;
   const body = await request.json();
 
+  // Check previous state to detect draft → published transition
+  const before = await prisma.blogPost.findUnique({ where: { slug } });
+  const wasLive = before?.published && (!before.publishedAt || before.publishedAt <= new Date());
+
+  const publishedAt = body.publishedAt !== undefined
+    ? (body.publishedAt ? new Date(body.publishedAt) : null)
+    : before?.publishedAt ?? null;
+
   const post = await prisma.blogPost.update({
     where: { slug },
     data: {
@@ -47,6 +56,11 @@ export async function PATCH(
         : undefined,
     },
   });
+
+  const isLiveNow = post.published && (!publishedAt || publishedAt <= new Date());
+  if (!wasLive && isLiveNow) {
+    sendNewsletterBlogPost({ title: post.title, slug: post.slug, excerpt: post.excerpt ?? undefined }).catch(() => {});
+  }
 
   return NextResponse.json(post);
 }
