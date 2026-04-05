@@ -3,11 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getContent } from "@/lib/content";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import InstagramFeed from "@/components/InstagramFeed";
 import ShopDisclaimer from "@/components/ShopDisclaimer";
 
-const FeaturedProductCarousel = dynamic(
+const FeaturedProductCarousel = nextDynamic(
   () => import("@/components/FeaturedProductCarousel"),
   { ssr: false }
 );
