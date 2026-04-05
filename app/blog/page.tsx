@@ -57,7 +57,7 @@ export default function BlogPage() {
             Blog
           </div>
           <h1 className="text-3xl sm:text-5xl font-black uppercase">
-            News &amp; <span className="text-rose-400">Analysen</span>
+            News &amp; <span className="text-salmon">Analysen</span>
           </h1>
           <p className="text-gray-400 mt-3 max-w-xl">
             Antifaschistische Berichte, Analysen zu Polizeigewalt und linke Themen — direkt aus der Bewegung.

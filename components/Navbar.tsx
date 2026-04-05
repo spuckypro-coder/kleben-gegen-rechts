@@ -16,9 +16,9 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-xl font-black uppercase tracking-tight">
-            <span className="text-red-500">KLEBEN</span>{" "}
-            <span className="text-white">GEGEN</span>{" "}
-            <span className="text-rose-400">RECHTS</span>
+            <span className="text-white">KLEBEN</span>{" "}
+            <span className="text-orange-500">GEGEN</span>{" "}
+            <span className="text-white">RECHTS</span>
           </span>
         </Link>
 
@@ -32,7 +32,7 @@ export default function Navbar() {
           </Link>
           <Link
             href="/shop"
-            className="uppercase font-bold text-sm tracking-widest hover:text-rose-400 transition-colors"
+            className="uppercase font-bold text-sm tracking-widest hover:text-salmon transition-colors"
           >
             Shop
           </Link>
@@ -63,7 +63,7 @@ export default function Navbar() {
         {/* Cart Button — always visible */}
         <button
           onClick={() => setCartOpen(true)}
-          className="relative p-2 hover:text-rose-400 transition-colors"
+          className="relative p-2 hover:text-salmon transition-colors"
           aria-label="Warenkorb"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -101,7 +101,7 @@ export default function Navbar() {
           <Link
             href="/shop"
             onClick={() => setOpen(false)}
-            className="uppercase font-bold text-sm tracking-widest hover:text-rose-400"
+            className="uppercase font-bold text-sm tracking-widest hover:text-salmon"
           >
             Shop
           </Link>

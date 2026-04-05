@@ -58,7 +58,7 @@ export default function CartSidebar() {
                       onClick={() => updateQuantity(item.id, Math.min(item.stock, item.quantity + 1))}
                       className="w-6 h-6 border border-gray-700 font-black text-sm hover:border-green-500 hover:text-green-500 flex items-center justify-center"
                     >+</button>
-                    <span className="text-rose-400 font-bold text-sm ml-2">
+                    <span className="text-salmon font-bold text-sm ml-2">
                       {(item.price * item.quantity).toFixed(2)} €
                     </span>
                   </div>
@@ -76,7 +76,7 @@ export default function CartSidebar() {
           <div className="p-4 border-t border-gray-800">
             <div className="flex justify-between font-black uppercase mb-4">
               <span>Gesamt</span>
-              <span className="text-rose-400">{total.toFixed(2)} €</span>
+              <span className="text-salmon">{total.toFixed(2)} €</span>
             </div>
             <button
               onClick={checkout}

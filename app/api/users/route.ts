@@ -14,7 +14,7 @@ export async function GET() {
   if (!isAdmin(session)) return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
 
   const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true, role: true, createdAt: true },
+    select: { id: true, name: true, email: true, role: true, lastSeen: true, createdAt: true },
     orderBy: { createdAt: "asc" },
   });
 

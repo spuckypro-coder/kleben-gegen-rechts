@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
+@theme {
+  --color-salmon: lab(63.7053% 60.745 31.3109);
+}
+
 :root {
   --background: #000000;
   --foreground: #ffffff;
   --accent: #ff0033;
-  --accent2: #fb8c78;
+  --accent2: lab(63.7053% 60.745 31.3109);
   --gray: #1a1a1a;
   --gray2: #2a2a2a;
 }
@@ -24,7 +28,7 @@ body {
 
 .comic-border-yellow {
   border: 3px solid #fff;
-  box-shadow: 4px 4px 0px #fb8c78;
+  box-shadow: 4px 4px 0px lab(63.7053% 60.745 31.3109);
 }
 
 /* Halftone effect overlay */
@@ -133,7 +137,7 @@ body {
   border: 2px solid #333;
 }
 .blog-content a {
-  color: #fb8c78;
+  color: lab(63.7053% 60.745 31.3109);
   text-decoration: underline;
 }
 .blog-content strong { font-weight: 900; color: #fff; }

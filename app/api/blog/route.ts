@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendNewsletterBlogPost } from "@/lib/resend";
 import slugify from "slugify";
 
 export async function GET(request: NextRequest) {
@@ -13,7 +14,10 @@ export async function GET(request: NextRequest) {
   const isAdmin = !!session;
 
   const where: Record<string, unknown> = {};
-  if (!isAdmin || !all) where.published = true;
+  if (!isAdmin || !all) {
+    where.published = true;
+    where.OR = [{ publishedAt: null }, { publishedAt: { lte: new Date() } }];
+  }
   if (category && category !== "alle") where.category = category;
 
   const posts = await prisma.blogPost.findMany({
@@ -27,6 +31,7 @@ export async function GET(request: NextRequest) {
       coverImage: true,
       category: true,
       published: true,
+      publishedAt: true,
       createdAt: true,
     },
   });
@@ -51,6 +56,9 @@ export async function POST(request: NextRequest) {
   const existing = await prisma.blogPost.findUnique({ where: { slug } });
   const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
 
+  const publishedAt = body.publishedAt ? new Date(body.publishedAt) : null;
+  const isLiveNow = body.published && (!publishedAt || publishedAt <= new Date());
+
   const post = await prisma.blogPost.create({
     data: {
       title: body.title,
@@ -61,8 +69,13 @@ export async function POST(request: NextRequest) {
       category: body.category || "antifaschismus",
       sources: body.sources || "",
       published: body.published ?? false,
+      publishedAt,
     },
   });
+
+  if (isLiveNow) {
+    sendNewsletterBlogPost({ title: post.title, slug: post.slug, excerpt: post.excerpt ?? undefined }).catch(() => {});
+  }
 
   return NextResponse.json(post);
 }

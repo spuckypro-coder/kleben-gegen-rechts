@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import SessionProvider from "@/components/SessionProvider";
 import { CartProvider } from "@/components/CartProvider";
 import CartSidebar from "@/components/CartSidebar";
+import { PublicUserProvider } from "@/components/PublicUserProvider";
 
 export const metadata: Metadata = {
   title: "Kleben Gegen Rechts",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="de" className="h-full">
       <body className="min-h-full flex flex-col bg-black text-white">
         <SessionProvider>
+          <PublicUserProvider>
           <CartProvider>
             <Navbar />
             <CartSidebar />
@@ -35,6 +37,7 @@ export default function RootLayout({
               </p>
             </footer>
           </CartProvider>
+          </PublicUserProvider>
         </SessionProvider>
       </body>
     </html>

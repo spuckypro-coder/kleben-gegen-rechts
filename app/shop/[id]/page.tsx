@@ -151,7 +151,7 @@ export default function ProductDetailPage() {
               <h1 className="text-2xl sm:text-4xl font-black uppercase mb-4 leading-tight">
                 {product.name}
               </h1>
-              <div className="text-3xl sm:text-4xl font-black text-rose-400 mb-6">
+              <div className="text-3xl sm:text-4xl font-black text-salmon mb-6">
                 {product.price.toFixed(2)} €
               </div>
 
@@ -209,7 +209,7 @@ export default function ProductDetailPage() {
                         ? "bg-green-600 text-white"
                         : "bg-red-600 text-white hover:bg-red-500"
                     }`}
-                    style={{ boxShadow: added ? "none" : "4px 4px 0px #fb8c78" }}
+                    style={{ boxShadow: added ? "none" : "4px 4px 0px lab(63.7053% 60.745 31.3109)" }}
                   >
                     {added ? "✓ Im Warenkorb!" : "In den Warenkorb"}
                   </button>

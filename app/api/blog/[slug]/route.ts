@@ -9,7 +9,9 @@ export async function GET(
 ) {
   const { slug } = await params;
   const post = await prisma.blogPost.findUnique({ where: { slug } });
-  if (!post || !post.published) {
+  const now = new Date();
+  const isLive = post?.published && (!post.publishedAt || post.publishedAt <= now);
+  if (!post || !isLive) {
     const session = await getServerSession(authOptions);
     if (!session || !post) {
       return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
@@ -40,6 +42,9 @@ export async function PATCH(
       category: body.category,
       sources: body.sources,
       published: body.published,
+      publishedAt: body.publishedAt !== undefined
+        ? (body.publishedAt ? new Date(body.publishedAt) : null)
+        : undefined,
     },
   });
 
