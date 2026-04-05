@@ -113,6 +113,58 @@ export default function AdminPage() {
   const [userError, setUserError] = useState("");
   const [showNewUserForm, setShowNewUserForm] = useState(false);
 
+  // Newsletter state
+  interface NewsletterSubscriber {
+    id: string;
+    email: string;
+    name: string | null;
+    active: boolean;
+    subscribedAt: string;
+  }
+  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
+  const [nlSubject, setNlSubject] = useState("");
+  const [nlBody, setNlBody] = useState("");
+  const [nlSending, setNlSending] = useState(false);
+  const [nlSent, setNlSent] = useState<string | null>(null);
+
+  const loadSubscribers = () =>
+    fetch("/api/newsletter/subscribers").then((r) => r.json()).then((d) => setSubscribers(Array.isArray(d) ? d : []));
+
+  const toggleSubscriber = async (id: string, active: boolean) => {
+    await fetch("/api/newsletter/subscribers", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, active }),
+    });
+    loadSubscribers();
+  };
+
+  const deleteSubscriber = async (id: string) => {
+    if (!confirm("Abonnent endgültig löschen?")) return;
+    await fetch(`/api/newsletter/subscribers?id=${id}`, { method: "DELETE" });
+    loadSubscribers();
+  };
+
+  const sendNewsletter = async () => {
+    if (!nlSubject.trim() || !nlBody.trim()) return;
+    setNlSending(true);
+    setNlSent(null);
+    const res = await fetch("/api/newsletter/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject: nlSubject, body: nlBody }),
+    });
+    const data = await res.json();
+    setNlSending(false);
+    if (res.ok) {
+      setNlSent(`Newsletter erfolgreich an ${data.sent} Abonnenten gesendet!`);
+      setNlSubject("");
+      setNlBody("");
+    } else {
+      setNlSent(`Fehler: ${data.error}`);
+    }
+  };
+
   // Gallery form
   const [imgTitle, setImgTitle] = useState("");
   const [imgDesc, setImgDesc] = useState("");
@@ -141,7 +193,7 @@ export default function AdminPage() {
       loadProducts();
       loadBlogPosts();
       fetch("/api/content").then((r) => r.json()).then(setContent);
-      if ((session.user as { role?: string })?.role === "admin") loadUsers();
+      if ((session.user as { role?: string })?.role === "admin") { loadUsers(); loadSubscribers(); }
       // ping lastSeen
       fetch("/api/ping", { method: "POST" });
       const pingInterval = setInterval(() => fetch("/api/ping", { method: "POST" }), 60000);
@@ -441,7 +493,7 @@ export default function AdminPage() {
                   : "border-transparent text-gray-500 hover:text-white"
               }`}
             >
-              {t === "benutzer" ? "👥 Benutzer" : t}
+              {t === "benutzer" ? "👥 Benutzer" : t === "newsletter" ? "📧 Newsletter" : t}
             </button>
           ))}
         </div>
@@ -1080,6 +1132,110 @@ export default function AdminPage() {
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* NEWSLETTER TAB */}
+          {tab === "newsletter" && (
+            <div className="grid md:grid-cols-2 gap-8">
+
+              {/* Compose + Send */}
+              <div>
+                <h2 className="font-black uppercase text-sm tracking-widest text-gray-400 mb-6">
+                  Newsletter verfassen & senden
+                </h2>
+                <div className="bg-gray-950 border border-gray-800 p-6 space-y-4">
+                  <div>
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Betreff</label>
+                    <input
+                      type="text"
+                      value={nlSubject}
+                      onChange={(e) => setNlSubject(e.target.value)}
+                      placeholder="z.B. Neues von Kleben Gegen Rechts"
+                      className="w-full bg-black border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-500 text-xs uppercase mb-1">Inhalt</label>
+                    <textarea
+                      value={nlBody}
+                      onChange={(e) => setNlBody(e.target.value)}
+                      rows={10}
+                      placeholder="Schreib deinen Newsletter-Text hier..."
+                      className="w-full bg-black border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600 resize-y"
+                    />
+                  </div>
+                  <div className="pt-2">
+                    <p className="text-gray-600 text-xs mb-3">
+                      Wird an <span className="text-white font-bold">{subscribers.filter((s) => s.active).length}</span> aktive Abonnenten gesendet.
+                    </p>
+                    <button
+                      onClick={sendNewsletter}
+                      disabled={nlSending || !nlSubject.trim() || !nlBody.trim()}
+                      className="w-full py-3 bg-red-600 text-white font-black uppercase text-sm hover:bg-red-500 transition-colors disabled:opacity-50"
+                    >
+                      {nlSending ? "Wird gesendet..." : "Newsletter senden"}
+                    </button>
+                    {nlSent && (
+                      <p className={`mt-3 text-sm font-bold ${nlSent.startsWith("Fehler") ? "text-red-500" : "text-green-400"}`}>
+                        {nlSent}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Subscriber List */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-black uppercase text-sm tracking-widest text-gray-400">
+                    Abonnenten ({subscribers.length})
+                  </h2>
+                  <span className="text-xs text-gray-600">
+                    {subscribers.filter((s) => s.active).length} aktiv · {subscribers.filter((s) => !s.active).length} abgemeldet
+                  </span>
+                </div>
+
+                {subscribers.length === 0 ? (
+                  <div className="text-center py-20 border-2 border-dashed border-gray-700">
+                    <p className="text-gray-500 font-bold uppercase">Noch keine Abonnenten</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                    {subscribers.map((s) => (
+                      <div key={s.id} className={`bg-gray-950 border p-3 flex items-center gap-3 ${s.active ? "border-gray-800" : "border-gray-900 opacity-60"}`}>
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${s.active ? "bg-green-500" : "bg-gray-600"}`} />
+                        <div className="flex-1 min-w-0">
+                          {s.name && <p className="font-black text-sm uppercase truncate">{s.name}</p>}
+                          <p className="text-gray-400 text-sm truncate">{s.email}</p>
+                          <p className="text-gray-700 text-xs">
+                            {new Date(s.subscribedAt).toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })}
+                            {!s.active && <span className="ml-2 text-gray-600">· abgemeldet</span>}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={() => toggleSubscriber(s.id, !s.active)}
+                            className={`px-3 py-1 font-black uppercase text-xs border transition-colors ${
+                              s.active
+                                ? "border-gray-700 text-gray-500 hover:border-red-600 hover:text-red-500"
+                                : "border-gray-700 text-gray-500 hover:border-green-600 hover:text-green-400"
+                            }`}
+                          >
+                            {s.active ? "Deaktivieren" : "Reaktivieren"}
+                          </button>
+                          <button
+                            onClick={() => deleteSubscriber(s.id)}
+                            className="px-3 py-1 font-black uppercase text-xs border border-gray-800 text-gray-700 hover:border-red-600 hover:text-red-500 transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
