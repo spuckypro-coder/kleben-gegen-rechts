@@ -3,9 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getContent } from "@/lib/content";
+import dynamic from "next/dynamic";
 import InstagramFeed from "@/components/InstagramFeed";
 import ShopDisclaimer from "@/components/ShopDisclaimer";
-import FeaturedProductCarousel from "@/components/FeaturedProductCarousel";
+
+const FeaturedProductCarousel = dynamic(
+  () => import("@/components/FeaturedProductCarousel"),
+  { ssr: false }
+);
 
 export const dynamic = "force-dynamic";
 

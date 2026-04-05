@@ -57,25 +57,16 @@ function ProductSlide({ product }: { product: Product }) {
 }
 
 export default function FeaturedProductCarousel({ products }: { products: Product[] }) {
-  // Always start at 0 for SSR — randomise after mount to avoid hydration mismatch
-  const [current, setCurrent] = useState(0);
+  // ssr: false guarantees this runs only in the browser — Math.random() is safe here
+  const [current, setCurrent] = useState(() =>
+    Math.floor(Math.random() * products.length)
+  );
   const [prev, setPrev] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
-  const [mounted, setMounted] = useState(false);
-  const currentRef = useRef(0);
+  const currentRef = useRef(current);
 
   useEffect(() => {
-    // Randomise starting index on client after hydration
-    if (products.length > 1) {
-      const rand = Math.floor(Math.random() * products.length);
-      setCurrent(rand);
-      currentRef.current = rand;
-    }
-    setMounted(true);
-  }, [products.length]);
-
-  useEffect(() => {
-    if (!mounted || products.length <= 1) return;
+    if (products.length <= 1) return;
     const id = setInterval(() => {
       const next = (currentRef.current + 1) % products.length;
       setPrev(currentRef.current);
@@ -84,7 +75,7 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
       setTick((t) => t + 1);
     }, 10000);
     return () => clearInterval(id);
-  }, [mounted, products.length]);
+  }, [products.length]);
 
   const goTo = (next: number) => {
     if (next === currentRef.current) return;
@@ -98,7 +89,7 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
 
   return (
     <div>
-      {/* Slide container */}
+      {/* Slides */}
       <div className="relative overflow-hidden">
         {prev !== null && tick > 0 && (
           <div key={`exit-${tick}`} className="carousel-exit pointer-events-none">
@@ -110,7 +101,7 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
         </div>
       </div>
 
-      {/* Controls — only shown when multiple products */}
+      {/* Controls */}
       {products.length > 1 && (
         <div className="flex items-center gap-3 mt-4 px-1">
           <button
@@ -119,7 +110,6 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
           >
             ←
           </button>
-
           <div className="flex items-center gap-2 flex-1">
             {products.map((_, i) => (
               <button
@@ -131,11 +121,9 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
               />
             ))}
           </div>
-
           <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">
             {current + 1} / {products.length}
           </span>
-
           <button
             onClick={() => goTo((current + 1) % products.length)}
             className="px-3 py-2 border border-gray-700 text-gray-400 font-black text-sm hover:border-orange-500 hover:text-orange-500 transition-colors"
