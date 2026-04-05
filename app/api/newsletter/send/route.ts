@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resend } from "@/lib/resend";
 import { prisma } from "@/lib/prisma";
+import { emailTemplate } from "@/lib/email-template";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -23,15 +24,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Keine aktiven Abonnenten" }, { status: 400 });
   }
 
-  const html = `
-    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#000;color:#fff;padding:32px;">
-      <h1 style="color:#ff6600;font-size:24px;text-transform:uppercase;margin-bottom:24px;">Kleben Gegen Rechts</h1>
-      <div style="color:#e0e0e0;font-size:16px;line-height:1.7;white-space:pre-wrap;">${body.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-      <hr style="border-color:#333;margin:32px 0;" />
-      <p style="color:#555;font-size:12px;">Du erhältst diese E-Mail weil du den Newsletter von klebengegenrechts.de abonniert hast.</p>
-      <p style="color:#555;font-size:12px;"><a href="https://www.klebengegenrechts.de/newsletter/abmelden" style="color:#555;">Abmelden</a></p>
-    </div>
-  `;
+  // Convert plain-text line breaks to HTML paragraphs
+  const bodyHtml = body
+    .split(/\n\n+/)
+    .map((para: string) =>
+      `<p style="margin:0 0 16px 0;color:#e0e0e0;font-size:15px;line-height:1.8;">${para.replace(/\n/g, "<br/>")}</p>`
+    )
+    .join("");
+
+  const html = emailTemplate(bodyHtml);
 
   await resend.emails.send({
     from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
