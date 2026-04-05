@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendNewsletterProduct } from "@/lib/resend";
 
 export async function GET() {
   const products = await prisma.product.findMany({
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest) {
       artist: body.artist || "Kleben Gegen Rechts",
     },
   });
+
+  sendNewsletterProduct({ name: product.name, id: product.id, price: product.price }).catch(() => {});
 
   return NextResponse.json(product);
 }
