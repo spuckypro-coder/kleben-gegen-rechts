@@ -75,6 +75,25 @@ body {
   background: #ff0033;
 }
 
+/* Featured product carousel */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes slide-out-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+.carousel-enter {
+  animation: slide-in-right 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.carousel-exit {
+  animation: slide-out-left 0.65s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
 /* Marquee animation */
 @keyframes marquee {
   from { transform: translateX(0); }
