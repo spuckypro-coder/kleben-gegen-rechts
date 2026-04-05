@@ -3,14 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getContent } from "@/lib/content";
-import nextDynamic from "next/dynamic";
 import InstagramFeed from "@/components/InstagramFeed";
 import ShopDisclaimer from "@/components/ShopDisclaimer";
-
-const FeaturedProductCarousel = nextDynamic(
-  () => import("@/components/FeaturedProductCarousel"),
-  { ssr: false }
-);
+import FeaturedProductCarousel from "@/components/FeaturedProductCarousel";
 
 export const dynamic = "force-dynamic";
 

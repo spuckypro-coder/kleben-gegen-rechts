@@ -57,13 +57,20 @@ function ProductSlide({ product }: { product: Product }) {
 }
 
 export default function FeaturedProductCarousel({ products }: { products: Product[] }) {
-  // ssr: false guarantees this runs only in the browser — Math.random() is safe here
-  const [current, setCurrent] = useState(() =>
-    Math.floor(Math.random() * products.length)
-  );
+  // SSR-safe: always start at 0, randomise after mount
+  const [current, setCurrent] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
-  const currentRef = useRef(current);
+  const currentRef = useRef(0);
+
+  useEffect(() => {
+    // Randomise after hydration — runs client-side only
+    if (products.length > 1) {
+      const rand = Math.floor(Math.random() * products.length);
+      currentRef.current = rand;
+      setCurrent(rand);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (products.length <= 1) return;
@@ -89,7 +96,6 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
 
   return (
     <div>
-      {/* Slides */}
       <div className="relative overflow-hidden">
         {prev !== null && tick > 0 && (
           <div key={`exit-${tick}`} className="carousel-exit pointer-events-none">
@@ -101,7 +107,6 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
         </div>
       </div>
 
-      {/* Controls */}
       {products.length > 1 && (
         <div className="flex items-center gap-3 mt-4 px-1">
           <button
