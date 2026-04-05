@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -57,95 +57,79 @@ function ProductSlide({ product }: { product: Product }) {
 }
 
 export default function FeaturedProductCarousel({ products }: { products: Product[] }) {
-  const [current, setCurrent] = useState(() =>
+  const startIndex = useRef(
     products.length > 1 ? Math.floor(Math.random() * products.length) : 0
-  );
+  ).current;
+
+  const [current, setCurrent] = useState(startIndex);
   const [prev, setPrev] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const currentRef = useRef(current);
+  currentRef.current = current;
 
-  const goTo = useCallback((next: number) => {
-    setCurrent((cur) => {
-      if (next === cur) return cur;
-      setPrev(cur);
-      setTick((t) => t + 1);
-      return next;
-    });
-  }, []);
-
-  const advance = useCallback(() => {
-    setCurrent((cur) => {
-      const next = (cur + 1) % products.length;
-      setPrev(cur);
-      setTick((t) => t + 1);
-      return next;
-    });
-  }, [products.length]);
+  const goTo = (next: number) => {
+    if (next === currentRef.current) return;
+    setPrev(currentRef.current);
+    setCurrent(next);
+    setTick((t) => t + 1);
+  };
 
   useEffect(() => {
-    if (products.length <= 1 || paused) return;
-    const id = setInterval(advance, 10000);
+    if (products.length <= 1) return;
+    const id = setInterval(() => {
+      const next = (currentRef.current + 1) % products.length;
+      setPrev(currentRef.current);
+      setCurrent(next);
+      setTick((t) => t + 1);
+    }, 10000);
     return () => clearInterval(id);
-  }, [advance, products.length, paused]);
+  }, [products.length]);
 
   if (!products.length) return null;
-
-  const prevProduct = prev !== null ? products[prev] : null;
 
   return (
     <div>
       {/* Slide container */}
       <div className="relative overflow-hidden">
-        {/* Exiting slide */}
-        {prevProduct && tick > 0 && (
+        {prev !== null && tick > 0 && (
           <div key={`exit-${tick}`} className="carousel-exit pointer-events-none">
-            <ProductSlide product={prevProduct} />
+            <ProductSlide product={products[prev]} />
           </div>
         )}
-        {/* Entering slide */}
         <div key={`enter-${tick}`} className={tick > 0 ? "carousel-enter relative z-10" : "relative z-10"}>
           <ProductSlide product={products[current]} />
         </div>
       </div>
 
-      {/* Controls — outside the animated area */}
+      {/* Controls */}
       {products.length > 1 && (
         <div className="flex items-center gap-3 mt-4 px-1">
-          {/* Prev arrow */}
           <button
-            onClick={() => { setPaused(true); goTo((current - 1 + products.length) % products.length); setTimeout(() => setPaused(false), 500); }}
+            onClick={() => goTo((current - 1 + products.length) % products.length)}
             className="px-3 py-2 border border-gray-700 text-gray-400 font-black text-sm hover:border-orange-500 hover:text-orange-500 transition-colors"
-            aria-label="Zurück"
           >
             ←
           </button>
 
-          {/* Dots */}
           <div className="flex items-center gap-2 flex-1">
             {products.map((_, i) => (
               <button
                 key={i}
-                onClick={() => { setPaused(true); goTo(i); setTimeout(() => setPaused(false), 500); }}
+                onClick={() => goTo(i)}
                 className={`transition-all duration-300 ${
-                  i === current
-                    ? "w-8 h-2 bg-orange-500"
-                    : "w-2 h-2 bg-gray-700 hover:bg-gray-500"
+                  i === current ? "w-8 h-2 bg-orange-500" : "w-2 h-2 bg-gray-700 hover:bg-gray-500"
                 }`}
-                aria-label={`Produkt ${i + 1}`}
               />
             ))}
           </div>
 
-          {/* Counter */}
           <span className="text-gray-600 text-xs font-bold uppercase tracking-widest">
             {current + 1} / {products.length}
           </span>
 
-          {/* Next arrow */}
           <button
-            onClick={() => { setPaused(true); goTo((current + 1) % products.length); setTimeout(() => setPaused(false), 500); }}
+            onClick={() => goTo((current + 1) % products.length)}
             className="px-3 py-2 border border-gray-700 text-gray-400 font-black text-sm hover:border-orange-500 hover:text-orange-500 transition-colors"
-            aria-label="Weiter"
           >
             →
           </button>
