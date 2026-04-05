@@ -57,33 +57,42 @@ function ProductSlide({ product }: { product: Product }) {
 }
 
 export default function FeaturedProductCarousel({ products }: { products: Product[] }) {
-  const startIndex = useRef(
-    products.length > 1 ? Math.floor(Math.random() * products.length) : 0
-  ).current;
-
-  const [current, setCurrent] = useState(startIndex);
+  // Always start at 0 for SSR — randomise after mount to avoid hydration mismatch
+  const [current, setCurrent] = useState(0);
   const [prev, setPrev] = useState<number | null>(null);
   const [tick, setTick] = useState(0);
-  const currentRef = useRef(current);
-  currentRef.current = current;
-
-  const goTo = (next: number) => {
-    if (next === currentRef.current) return;
-    setPrev(currentRef.current);
-    setCurrent(next);
-    setTick((t) => t + 1);
-  };
+  const [mounted, setMounted] = useState(false);
+  const currentRef = useRef(0);
 
   useEffect(() => {
-    if (products.length <= 1) return;
+    // Randomise starting index on client after hydration
+    if (products.length > 1) {
+      const rand = Math.floor(Math.random() * products.length);
+      setCurrent(rand);
+      currentRef.current = rand;
+    }
+    setMounted(true);
+  }, [products.length]);
+
+  useEffect(() => {
+    if (!mounted || products.length <= 1) return;
     const id = setInterval(() => {
       const next = (currentRef.current + 1) % products.length;
       setPrev(currentRef.current);
+      currentRef.current = next;
       setCurrent(next);
       setTick((t) => t + 1);
     }, 10000);
     return () => clearInterval(id);
-  }, [products.length]);
+  }, [mounted, products.length]);
+
+  const goTo = (next: number) => {
+    if (next === currentRef.current) return;
+    setPrev(currentRef.current);
+    currentRef.current = next;
+    setCurrent(next);
+    setTick((t) => t + 1);
+  };
 
   if (!products.length) return null;
 
@@ -101,7 +110,7 @@ export default function FeaturedProductCarousel({ products }: { products: Produc
         </div>
       </div>
 
-      {/* Controls */}
+      {/* Controls — only shown when multiple products */}
       {products.length > 1 && (
         <div className="flex items-center gap-3 mt-4 px-1">
           <button
