@@ -109,6 +109,40 @@ export function emailTemplate(content: string): string {
   `.trim();
 }
 
+/**
+ * Converts TipTap HTML to email-safe inline-styled HTML.
+ * Works on both server and client (pure string manipulation).
+ */
+export function convertBodyHtmlForEmail(html: string): string {
+  const p   = "margin:0 0 16px 0;color:#e0e0e0;font-size:15px;line-height:1.8;";
+  const h2  = "margin:0 0 14px 0;color:#ffffff;font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:1px;";
+  const h3  = "margin:0 0 10px 0;color:#ffffff;font-size:16px;font-weight:900;text-transform:uppercase;";
+  const bq  = "margin:0 0 16px 0;padding:12px 16px;border-left:3px solid #cc0000;background:#111111;color:#aaaaaa;font-style:italic;";
+  const ul  = "margin:0 0 16px 0;padding-left:20px;color:#e0e0e0;";
+  const li  = "margin-bottom:6px;font-size:15px;line-height:1.7;";
+  const str = "color:#ffffff;font-weight:900;";
+  const img = "max-width:100%;height:auto;display:block;margin:16px 0;";
+  const a   = "color:#cc0000;text-decoration:underline;";
+
+  return html
+    // Tags that may already carry a style (e.g. text-align from TipTap) — prepend our styles
+    .replace(/<p style="([^"]*)"/gi,   `<p style="${p}$1"`)
+    .replace(/<h2 style="([^"]*)"/gi,  `<h2 style="${h2}$1"`)
+    .replace(/<h3 style="([^"]*)"/gi,  `<h3 style="${h3}$1"`)
+    // Tags without an existing style attribute
+    .replace(/<p>/gi,          `<p style="${p}">`)
+    .replace(/<h2>/gi,         `<h2 style="${h2}">`)
+    .replace(/<h3>/gi,         `<h3 style="${h3}">`)
+    .replace(/<blockquote>/gi, `<blockquote style="${bq}">`)
+    .replace(/<ul>/gi,         `<ul style="${ul}">`)
+    .replace(/<ol>/gi,         `<ol style="${ul}">`)
+    .replace(/<li>/gi,         `<li style="${li}">`)
+    .replace(/<strong>/gi,     `<strong style="${str}">`)
+    // Always inject on these (they never carry style from TipTap)
+    .replace(/<img /gi,  `<img style="${img}" `)
+    .replace(/<a /gi,    `<a style="${a}" `);
+}
+
 /** Red CTA button for emails */
 export function emailButton(label: string, url: string): string {
   return `

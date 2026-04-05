@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import { getAllowedTabs, hasPermission, ROLE_OPTIONS, type Permission } from "@/lib/roles";
 
 const BlogEditor = dynamic(() => import("@/components/BlogEditor"), { ssr: false });
+const NewsletterEditor = dynamic(() => import("@/components/NewsletterEditor"), { ssr: false });
 
 interface GalleryImage {
   id: string;
@@ -152,7 +153,7 @@ export default function AdminPage() {
     const res = await fetch("/api/newsletter/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ subject: nlSubject, body: nlBody }),
+      body: JSON.stringify({ subject: nlSubject, bodyHtml: nlBody }),
     });
     const data = await res.json();
     setNlSending(false);
@@ -1145,44 +1146,28 @@ export default function AdminPage() {
                 <h2 className="font-black uppercase text-sm tracking-widest text-gray-400 mb-6">
                   Newsletter verfassen & senden
                 </h2>
-                <div className="bg-gray-950 border border-gray-800 p-6 space-y-4">
-                  <div>
-                    <label className="block text-gray-500 text-xs uppercase mb-1">Betreff</label>
-                    <input
-                      type="text"
-                      value={nlSubject}
-                      onChange={(e) => setNlSubject(e.target.value)}
-                      placeholder="z.B. Neues von Kleben Gegen Rechts"
-                      className="w-full bg-black border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-500 text-xs uppercase mb-1">Inhalt</label>
-                    <textarea
-                      value={nlBody}
-                      onChange={(e) => setNlBody(e.target.value)}
-                      rows={10}
-                      placeholder="Schreib deinen Newsletter-Text hier..."
-                      className="w-full bg-black border border-gray-700 text-white px-3 py-2 text-sm focus:outline-none focus:border-red-600 resize-y"
-                    />
-                  </div>
-                  <div className="pt-2">
-                    <p className="text-gray-600 text-xs mb-3">
-                      Wird an <span className="text-white font-bold">{subscribers.filter((s) => s.active).length}</span> aktive Abonnenten gesendet.
+                <NewsletterEditor
+                  subject={nlSubject}
+                  onSubjectChange={setNlSubject}
+                  body={nlBody}
+                  onBodyChange={setNlBody}
+                />
+                <div className="mt-4">
+                  <p className="text-gray-600 text-xs mb-3">
+                    Wird an <span className="text-white font-bold">{subscribers.filter((s) => s.active).length}</span> aktive Abonnenten gesendet.
+                  </p>
+                  <button
+                    onClick={sendNewsletter}
+                    disabled={nlSending || !nlSubject.trim() || !nlBody.trim()}
+                    className="w-full py-3 bg-red-600 text-white font-black uppercase text-sm hover:bg-red-500 transition-colors disabled:opacity-50"
+                  >
+                    {nlSending ? "Wird gesendet..." : "Newsletter senden"}
+                  </button>
+                  {nlSent && (
+                    <p className={`mt-3 text-sm font-bold ${nlSent.startsWith("Fehler") ? "text-red-500" : "text-green-400"}`}>
+                      {nlSent}
                     </p>
-                    <button
-                      onClick={sendNewsletter}
-                      disabled={nlSending || !nlSubject.trim() || !nlBody.trim()}
-                      className="w-full py-3 bg-red-600 text-white font-black uppercase text-sm hover:bg-red-500 transition-colors disabled:opacity-50"
-                    >
-                      {nlSending ? "Wird gesendet..." : "Newsletter senden"}
-                    </button>
-                    {nlSent && (
-                      <p className={`mt-3 text-sm font-bold ${nlSent.startsWith("Fehler") ? "text-red-500" : "text-green-400"}`}>
-                        {nlSent}
-                      </p>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
 

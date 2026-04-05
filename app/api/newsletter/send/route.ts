@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resend } from "@/lib/resend";
 import { prisma } from "@/lib/prisma";
-import { emailTemplate } from "@/lib/email-template";
+import { emailTemplate, convertBodyHtmlForEmail } from "@/lib/email-template";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Kein Zugriff" }, { status: 403 });
   }
 
-  const { subject, body } = await req.json();
-  if (!subject?.trim() || !body?.trim()) {
+  const { subject, bodyHtml } = await req.json();
+  if (!subject?.trim() || !bodyHtml?.trim()) {
     return NextResponse.json({ error: "Betreff und Inhalt erforderlich" }, { status: 400 });
   }
 
@@ -24,15 +24,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Keine aktiven Abonnenten" }, { status: 400 });
   }
 
-  // Convert plain-text line breaks to HTML paragraphs
-  const bodyHtml = body
-    .split(/\n\n+/)
-    .map((para: string) =>
-      `<p style="margin:0 0 16px 0;color:#e0e0e0;font-size:15px;line-height:1.8;">${para.replace(/\n/g, "<br/>")}</p>`
-    )
-    .join("");
-
-  const html = emailTemplate(bodyHtml);
+  const html = emailTemplate(convertBodyHtmlForEmail(bodyHtml));
 
   await resend.emails.send({
     from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
