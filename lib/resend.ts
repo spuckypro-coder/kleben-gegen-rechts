@@ -22,12 +22,14 @@ export async function sendNewsletterBlogPost(post: {
     ${emailButton("Jetzt lesen →", url)}
   `;
 
-  await resend.emails.send({
-    from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
-    to: subscribers.map((s) => s.email),
-    subject: `Neuer Beitrag: ${post.title}`,
-    html: emailTemplate(content),
-  });
+  await resend.batch.send(
+    subscribers.map((s) => ({
+      from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
+      to: [s.email],
+      subject: `Neuer Beitrag: ${post.title}`,
+      html: emailTemplate(content),
+    }))
+  );
 }
 
 export async function sendNewsletterProduct(product: {
@@ -49,10 +51,12 @@ export async function sendNewsletterProduct(product: {
     ${emailButton("Im Shop ansehen →", url)}
   `;
 
-  await resend.emails.send({
-    from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
-    to: subscribers.map((s) => s.email),
-    subject: `Neu im Shop: ${product.name}`,
-    html: emailTemplate(content),
-  });
+  await resend.batch.send(
+    subscribers.map((s) => ({
+      from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
+      to: [s.email],
+      subject: `Neu im Shop: ${product.name}`,
+      html: emailTemplate(content),
+    }))
+  );
 }

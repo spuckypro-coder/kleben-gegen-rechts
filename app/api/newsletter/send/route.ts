@@ -26,12 +26,14 @@ export async function POST(req: NextRequest) {
 
   const html = emailTemplate(convertBodyHtmlForEmail(bodyHtml));
 
-  await resend.emails.send({
-    from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
-    to: subscribers.map((s) => s.email),
-    subject: subject.trim(),
-    html,
-  });
+  await resend.batch.send(
+    subscribers.map((s) => ({
+      from: "Kleben Gegen Rechts <newsletter@klebengegenrechts.de>",
+      to: [s.email],
+      subject: subject.trim(),
+      html,
+    }))
+  );
 
   return NextResponse.json({ ok: true, sent: subscribers.length });
 }
