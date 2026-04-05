@@ -74,7 +74,9 @@ export async function POST(request: NextRequest) {
   });
 
   if (isLiveNow) {
-    sendNewsletterBlogPost({ title: post.title, slug: post.slug, excerpt: post.excerpt ?? undefined }).catch(() => {});
+    sendNewsletterBlogPost({ title: post.title, slug: post.slug, excerpt: post.excerpt ?? undefined })
+      .then(() => prisma.blogPost.update({ where: { id: post.id }, data: { newsletterSent: true } }))
+      .catch(() => {});
   }
 
   return NextResponse.json(post);

@@ -59,7 +59,9 @@ export async function PATCH(
 
   const isLiveNow = post.published && (!publishedAt || publishedAt <= new Date());
   if (!wasLive && isLiveNow) {
-    sendNewsletterBlogPost({ title: post.title, slug: post.slug, excerpt: post.excerpt ?? undefined }).catch(() => {});
+    sendNewsletterBlogPost({ title: post.title, slug: post.slug, excerpt: post.excerpt ?? undefined })
+      .then(() => prisma.blogPost.update({ where: { id: post.id }, data: { newsletterSent: true } }))
+      .catch(() => {});
   }
 
   return NextResponse.json(post);
